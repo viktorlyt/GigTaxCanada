@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         UserRole @default(DRIVER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  trips    Trip[]
+  expenses Expense[]
+
+  platformImports PlatformImport[]
+}
+
+enum UserRole {
+  DRIVER
+  ACCOUNTANT
+}
+
+model Trip {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime    @db.Date
+  kilometers Float
+  purpose    TripPurpose
+  platform   GigPlatform @default(NONE)
+  note       String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([userId, date])
+}
+
+enum TripPurpose {
+  BUSINESS
+  PERSONAL
+}
+
+enum GigPlatform {
+  UBER_EATS
+  DOORDASH
+  INSTACART
+  UBER_RIDES
+  OTHER
+  NONE
+}
+
+model Expense {
+  id        String          @id @default(cuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime        @db.Date
+  amount    Decimal         @db.Decimal(10, 2)
+  category  ExpenseCategory
+  note      String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([userId, date])
+}
+
+enum ExpenseCategory {
+  FUEL
+  INSURANCE
+  MAINTENANCE
+  CAR_WASH
+  PARKING
+  REGISTRATION
+  LEASE_OR_LOAN_INTEREST
+  OTHER
+}
+
+model PlatformImport {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taxYear    Int
+  platform   GigPlatform
+  reportedKm Float
+  note       String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@unique([userId, taxYear, platform])
+  @@index([userId, taxYear])
+}

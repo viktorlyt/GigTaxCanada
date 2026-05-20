@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: gigtax-db
+    restart: unless-stopped
+    ports:
+      - '5434:5432'
+    environment:
+      POSTGRES_USER: gigtax
+      POSTGRES_PASSWORD: gigtax
+      POSTGRES_DB: gigtax
+    volumes:
+      - gigtax_pg:/var/lib/postgresql/data
+
+volumes:
+  gigtax_pg:
