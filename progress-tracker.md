@@ -2,7 +2,7 @@
 
 > **How to use:** Update this file after every **big stage** (a numbered build step or a major feature slice). Mark stages ✅ when verified (curl, browser, or deploy). Link PRs/commits optionally in **Notes**.
 
-**Last updated:** 2026-05-19  
+**Last updated:** 2026-05-20  
 **Product wedge:** Multi-platform km reconciliation + expense business-use % (vs RideWiz auto-GPS)  
 **Stack:** Turborepo · Next.js (`apps/web`) · NestJS (`apps/api`) · PostgreSQL · Prisma · `@gigtax/shared`
 
@@ -15,8 +15,9 @@
 | Monorepo + shared package | ✅ Done |
 | API (auth, trips, expenses, summary, platform imports) | ✅ Done |
 | Web (login + dashboard) | ✅ Done |
-| Web (trips / expenses / import forms) | ⬜ Next |
-| PWA + README + deploy | ⬜ Planned |
+| Web (trips / expenses / import forms) | ✅ Done |
+| PWA + README | ✅ Done |
+| Deploy beta | ⬜ Next |
 | Monetization (Stripe) | ⬜ Deferred |
 | Accountant B2B | ⬜ Deferred |
 
@@ -136,25 +137,27 @@
 
 ---
 
+### ✅ Stage 12 — Web: trips, expenses, platform import UI
+
+- [x] List + create trip (mobile-first form)
+- [x] List + create expense
+- [x] Platform km import form (upsert per platform/year)
+- [x] Nav between dashboard and data entry pages (`AppNav`)
+- [x] CSV export button on dashboard
+
+**Verified in browser:** `/trips`, `/expenses`, `/import` + dashboard links.
+
+---
+
+### ✅ Stage 13 — PWA + developer docs
+
+- [x] `manifest.json`, icons, installable PWA basics
+- [x] Root `README.md` — docker, env, `npm run dev`, curl cheatsheet
+- [x] `.env.example` for api + web
+
+---
+
 ## Upcoming stages
-
-### ⬜ Stage 12 — Web: trips, expenses, platform import UI
-
-- [ ] List + create trip (mobile-first form)
-- [ ] List + create expense
-- [ ] Platform km import form (upsert per platform/year)
-- [ ] Nav between dashboard and data entry pages
-- [ ] Optional: CSV export button on dashboard
-
----
-
-### ⬜ Stage 13 — PWA + developer docs
-
-- [ ] `manifest.json`, icons, installable PWA basics
-- [ ] Root `README.md` — docker, env, `npm run dev`, curl cheatsheet
-- [ ] `.env.example` for api + web
-
----
 
 ### ⬜ Stage 14 — Deploy beta
 
@@ -229,6 +232,7 @@ export TOKEN=$(curl -s -X POST http://localhost:4000/auth/login \
 | 2026-05-19 | 1–5 | Monorepo, shared, Next, Nest, Postgres/Prisma |
 | 2026-05-19 | 6–10 | Auth, trips, expenses, summary, platform imports (API) |
 | 2026-05-19 | 11 | Web login + dashboard; full-height UI polish |
+| 2026-05-20 | 12–13 | Web CRUD pages, AppNav, PWA manifest, env examples, root README |
 
 ---
 
