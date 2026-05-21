@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -15,6 +15,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "GigTax Canada",
   description: "Track gig driver mileage and expenses for Canadian taxes",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "GigTax",
+    statusBarStyle: "default",
+  },
+  applicationName: "GigTax Canada",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#18181b",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
