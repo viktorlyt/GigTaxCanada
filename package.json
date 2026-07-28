@@ -1,6 +1,7 @@
 {
   "name": "gig-tax-canada",
   "private": true,
+  "packageManager": "npm@11.0.0",
   "workspaces": [
     "apps/*",
     "packages/*"

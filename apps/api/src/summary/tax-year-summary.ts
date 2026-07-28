@@ -4,6 +4,8 @@ export interface TaxYearSummary {
   businessKm: number;
   personalKm: number;
   platformReportedKm: number;
+  /** businessKm − platformReportedKm */
+  platformKmGap: number;
   businessUsePercent: number;
   totalExpenses: number;
   deductibleExpenses: number;

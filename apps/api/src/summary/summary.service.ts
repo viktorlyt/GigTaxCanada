@@ -40,6 +40,7 @@ export class SummaryService {
       .reduce((s, t) => s + t.kilometers, 0);
 
     const businessKm = businessKmFromTrips + platformReportedKm;
+    const platformKmGap = round1(businessKm - platformReportedKm);
     const totalKm = businessKm + personalKm;
     const businessUsePercent =
       totalKm > 0 ? Math.round((businessKm / totalKm) * 10000) / 100 : 0;
@@ -70,6 +71,7 @@ export class SummaryService {
       businessKm: round1(businessKm),
       personalKm: round1(personalKm),
       platformReportedKm: round1(platformReportedKm),
+      platformKmGap,
       businessUsePercent,
       totalExpenses: round2(totalExpenses),
       deductibleExpenses: round2(deductibleExpenses),
@@ -86,6 +88,7 @@ export class SummaryService {
       `businessKm,${s.businessKm}`,
       `personalKm,${s.personalKm}`,
       `platformReportedKm,${s.platformReportedKm}`,
+      `platformKmGap,${s.platformKmGap}`,
       `businessUsePercent,${s.businessUsePercent}`,
       `totalExpenses,${s.totalExpenses}`,
       `deductibleExpenses,${s.deductibleExpenses}`,

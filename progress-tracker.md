@@ -182,6 +182,7 @@
 |------|----------|
 | Tax year selector in UI | Medium |
 | Vehicle profile (odometer start/end) | Medium |
+| Optional CRA per-km allowance estimate (comparison only, not tax advice) | Low / after MVP |
 | Google OAuth | Low |
 | Stripe / tax-season pass pricing | After 5–10 users |
 | Accountant client portal (`AccountantClient` model) | Later |

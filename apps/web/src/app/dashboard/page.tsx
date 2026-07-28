@@ -80,10 +80,13 @@ export default function DashboardPage() {
 
         <div className="mt-6 rounded-2xl border bg-white p-6 shadow-sm">
           <p className="text-sm text-zinc-500">
-            Estimated deductible vehicle expenses
+            Deductible portion of logged expenses (× business use %)
           </p>
           <p className="mt-1 text-4xl font-bold text-emerald-700">
             {formatMoney(summary.deductibleExpenses)}
+          </p>
+          <p className="mt-2 text-sm text-zinc-500">
+            Based on expenses you entered, not a per-km CRA rate.
           </p>
           {summary.potentialMissedDeduction > 0 && (
             <p className="mt-2 text-sm text-amber-700">
@@ -106,6 +109,23 @@ export default function DashboardPage() {
             value={formatMoney(summary.totalExpenses)}
           />
         </div>
+
+        {summary.platformReportedKm > 0 && (
+          <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+            <p className="text-xs text-emerald-800">Platform km reconciliation</p>
+            <p className="mt-1 text-lg font-semibold text-emerald-900">
+              {summary.platformKmGap > 0 ? "+" : ""}
+              {summary.platformKmGap} km vs platform reports
+            </p>
+            <p className="mt-1 text-sm text-emerald-800">
+              {summary.platformKmGap > 0
+                ? "Logged beyond what platforms reported — keep those records."
+                : summary.platformKmGap < 0
+                  ? "Platforms report more than your business trips — check imports or missing trips."
+                  : "Matches platform-reported km."}
+            </p>
+          </div>
+        )}
 
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
