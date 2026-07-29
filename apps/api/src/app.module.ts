@@ -9,6 +9,7 @@ import { TripsModule } from './trips/trips.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { SummaryModule } from './summary/summary.module';
 import { PlatformImportsModule } from './platform-imports/platform-imports.module';
+import { OdometerReadingsModule } from './odometer-readings/odometer-readings.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PlatformImportsModule } from './platform-imports/platform-imports.modul
     ExpensesModule,
     SummaryModule,
     PlatformImportsModule,
+    OdometerReadingsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],

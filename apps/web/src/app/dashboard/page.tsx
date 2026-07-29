@@ -112,7 +112,9 @@ export default function DashboardPage() {
 
         {summary.platformReportedKm > 0 && (
           <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-            <p className="text-xs text-emerald-800">Platform km reconciliation</p>
+            <p className="text-xs text-emerald-800">
+              Platform km reconciliation
+            </p>
             <p className="mt-1 text-lg font-semibold text-emerald-900">
               {summary.platformKmGap > 0 ? "+" : ""}
               {summary.platformKmGap} km vs platform reports
@@ -123,6 +125,19 @@ export default function DashboardPage() {
                 : summary.platformKmGap < 0
                   ? "Platforms report more than your business trips — check imports or missing trips."
                   : "Matches platform-reported km."}
+            </p>
+          </div>
+        )}
+
+        {summary.warnUnrealisticBusinessUse && (
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <p className="text-sm font-medium text-amber-900">
+              100% business use with no personal km is unusual
+            </p>
+            <p className="mt-1 text-sm text-amber-800">
+              CRA audits often expect some personal driving. Log personal trips,
+              or add odometer readings so personal km can be calculated as total
+              minus business.
             </p>
           </div>
         )}

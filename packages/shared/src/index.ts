@@ -44,4 +44,6 @@ export interface TaxYearSummary {
   totalExpenses: number;
   deductibleExpenses: number;
   potentialMissedDeduction: number;
+  /** True when business use looks unrealistically high with no personal km logged */
+  warnUnrealisticBusinessUse: boolean;
 }

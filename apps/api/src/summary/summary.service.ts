@@ -65,6 +65,9 @@ export class SummaryService {
         ? Math.round(benchmarkDeductible - deductibleExpenses)
         : 0;
 
+    const warnUnrealisticBusinessUse =
+      businessUsePercent >= 99 && personalKm === 0 && businessKm > 0;
+
     return {
       taxYear,
       totalKm: round1(totalKm),
@@ -76,6 +79,7 @@ export class SummaryService {
       totalExpenses: round2(totalExpenses),
       deductibleExpenses: round2(deductibleExpenses),
       potentialMissedDeduction,
+      warnUnrealisticBusinessUse,
     };
   }
 
@@ -93,6 +97,7 @@ export class SummaryService {
       `totalExpenses,${s.totalExpenses}`,
       `deductibleExpenses,${s.deductibleExpenses}`,
       `potentialMissedDeduction,${s.potentialMissedDeduction}`,
+      `warnUnrealisticBusinessUse,${s.warnUnrealisticBusinessUse}`,
     ].join('\n');
   }
 }

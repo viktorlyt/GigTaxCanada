@@ -10,4 +10,5 @@ export interface TaxYearSummary {
   totalExpenses: number;
   deductibleExpenses: number;
   potentialMissedDeduction: number;
+  warnUnrealisticBusinessUse: boolean;
 }
