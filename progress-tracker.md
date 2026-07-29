@@ -2,7 +2,7 @@
 
 > **How to use:** Update this file after every **big stage** (a numbered build step or a major feature slice). Mark stages ✅ when verified (curl, browser, or deploy). Link PRs/commits optionally in **Notes**.
 
-**Last updated:** 2026-05-20  
+**Last updated:** 2026-07-27  
 **Product wedge:** Multi-platform km reconciliation + expense business-use % (vs RideWiz auto-GPS)  
 **Stack:** Turborepo · Next.js (`apps/web`) · NestJS (`apps/api`) · PostgreSQL · Prisma · `@gigtax/shared`
 
@@ -17,7 +17,8 @@
 | Web (login + dashboard) | ✅ Done |
 | Web (trips / expenses / import forms) | ✅ Done |
 | PWA + README | ✅ Done |
-| Deploy beta | ⬜ Next |
+| Deploy beta | ✅ Done |
+| Stable API hostname (named tunnel + own domain) | ⬜ Next (optional) |
 | Monetization (Stripe) | ⬜ Deferred |
 | Accountant B2B | ⬜ Deferred |
 
@@ -38,7 +39,7 @@
 ### ✅ Stage 2 — `@gigtax/shared`
 
 - [x] Enums: `TripPurpose`, `GigPlatform`, `ExpenseCategory`
-- [x] `PLATFORM_LABELS`, `TaxYearSummary` (incl. `platformReportedKm`)
+- [x] `PLATFORM_LABELS`, `TaxYearSummary` (incl. `platformReportedKm`, `platformKmGap`)
 
 **Notes:** Single source of truth for web + API labels.
 
@@ -157,22 +158,31 @@
 
 ---
 
-## Upcoming stages
+### ✅ Stage 14 — Deploy beta
 
-### ⬜ Stage 14 — Deploy beta
+- [x] Vercel — `apps/web` → https://gig-tax-canada-web.vercel.app
+- [x] Oracle Cloud Always Free VM — Nest API via pm2 (`gigtax-api`)
+- [x] Neon Postgres (production `DATABASE_URL`)
+- [x] Cloudflare quick tunnel → public HTTPS to `127.0.0.1:4000` (URL changes on restart)
+- [x] Named tunnel connector (`cloudflared` systemd) installed — Public Hostname blocked until own domain/zone
+- [x] Production env: `WEB_ORIGIN=https://gig-tax-canada-web.vercel.app`, Vercel `NEXT_PUBLIC_API_URL`
+- [x] Smoke test: login, summary, trips, CSV export on production
+- [x] Dashboard trust polish: honest deductible label; `platformKmGap` + reconciliation card (`d344087`)
 
-- [ ] Vercel — `apps/web`
-- [ ] Railway/Render — `apps/api` + managed Postgres
-- [ ] Production env vars, CORS origins
-- [ ] Smoke test on production URL
+**Notes:** Quick tunnel is temporary. For a stable API URL buy a domain, add Cloudflare zone, Public Hostname `api.<domain>` → `http://127.0.0.1:4000`, then set Vercel `NEXT_PUBLIC_API_URL` once.
+
+**Prod ops (Oracle):** `~/GigTaxCanada` · `pm2` (`gigtax-api`, `cloudflared-quick`) · SSH `ubuntu@152.67.248.243`
 
 ---
+
+## Upcoming stages
 
 ### ⬜ Stage 15 — Distribution (pre-scale)
 
 - [ ] Landing / waitlist or 3 SEO pages (Uber Eats T2125 Canada, etc.)
 - [ ] 5 beta users from driver communities
 - [ ] One-paragraph positioning vs RideWiz finalized
+- [ ] Optional: own domain + Cloudflare named tunnel Public Hostname (stable API URL)
 
 ---
 
@@ -234,6 +244,8 @@ export TOKEN=$(curl -s -X POST http://localhost:4000/auth/login \
 | 2026-05-19 | 6–10 | Auth, trips, expenses, summary, platform imports (API) |
 | 2026-05-19 | 11 | Web login + dashboard; full-height UI polish |
 | 2026-05-20 | 12–13 | Web CRUD pages, AppNav, PWA manifest, env examples, root README |
+| 2026-05-21 | 14 | Neon + Oracle API + Cloudflare tunnel + Vercel web; prod smoke |
+| 2026-07-27 | 14+ | Dashboard: expense×% label, `platformKmGap` card; prod redeploy verified |
 
 ---
 
