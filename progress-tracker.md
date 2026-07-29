@@ -4,7 +4,8 @@
 
 **Last updated:** 2026-07-28  
 **Product wedge:** Multi-platform km reconciliation + expense business-use % (vs RideWiz auto-GPS)  
-**Stack:** Turborepo · Next.js (`apps/web`) · NestJS (`apps/api`) · PostgreSQL · Prisma · `@gigtax/shared`
+**Stack:** Turborepo · Next.js (`apps/web`) · NestJS (`apps/api`) · PostgreSQL · Prisma · `@gigtax/shared`  
+**Production:** https://gigtaxcanada.com · API https://api.gigtaxcanada.com
 
 ---
 
@@ -18,7 +19,7 @@
 | Web (trips / expenses / import / odometer forms) | ✅ Done |
 | PWA + README | ✅ Done |
 | Deploy beta | ✅ Done |
-| Stable API hostname (named tunnel + own domain) | ⬜ Next (optional) |
+| Stable API hostname (named tunnel + own domain) | ✅ Done |
 | Monetization (Stripe) | ⬜ Deferred |
 | Accountant B2B | ⬜ Deferred |
 
@@ -160,18 +161,33 @@
 
 ### ✅ Stage 14 — Deploy beta
 
-- [x] Vercel — `apps/web` → https://gig-tax-canada-web.vercel.app
+- [x] Vercel — `apps/web` → https://gig-tax-canada-web.vercel.app (later custom domain)
 - [x] Oracle Cloud Always Free VM — Nest API via pm2 (`gigtax-api`)
 - [x] Neon Postgres (production `DATABASE_URL`)
-- [x] Cloudflare quick tunnel → public HTTPS to `127.0.0.1:4000` (URL changes on restart)
-- [x] Named tunnel connector (`cloudflared` systemd) installed — Public Hostname blocked until own domain/zone
-- [x] Production env: `WEB_ORIGIN=https://gig-tax-canada-web.vercel.app`, Vercel `NEXT_PUBLIC_API_URL`
+- [x] Cloudflare quick tunnel → public HTTPS to `127.0.0.1:4000` (URL changes on restart) — superseded
+- [x] Named tunnel connector (`cloudflared` systemd) installed
+- [x] Production env: `WEB_ORIGIN` + Vercel `NEXT_PUBLIC_API_URL`
 - [x] Smoke test: login, summary, trips, CSV export on production
 - [x] Dashboard trust polish: honest deductible label; `platformKmGap` + reconciliation card (`d344087`)
 
-**Notes:** Quick tunnel is temporary. For a stable API URL buy a domain, add Cloudflare zone, Public Hostname `api.<domain>` → `http://127.0.0.1:4000`, then set Vercel `NEXT_PUBLIC_API_URL` once.
+**Prod URLs (2026-07-28):**
+- Web: https://gigtaxcanada.com
+- API: https://api.gigtaxcanada.com → Oracle `127.0.0.1:4000` (Cloudflare named tunnel)
+- Ensure API `.env`: `WEB_ORIGIN=https://gigtaxcanada.com`
+- Ensure Vercel: `NEXT_PUBLIC_API_URL=https://api.gigtaxcanada.com`
 
-**Prod ops (Oracle):** `~/GigTaxCanada` · `pm2` (`gigtax-api`, `cloudflared-quick`) · SSH `ubuntu@152.67.248.243`
+**Prod ops (Oracle):** `~/GigTaxCanada` · `pm2` (`gigtax-api`, cloudflared named tunnel) · SSH `ubuntu@152.67.248.243`
+
+**Prod API deploy (after `git pull`):** always regenerate Prisma before `nest build` when schema changed:
+
+```bash
+cd ~/GigTaxCanada && git pull
+cd apps/api
+npx prisma db push          # Neon prod DATABASE_URL in .env
+npx prisma generate
+npm run build
+pm2 restart gigtax-api
+```
 
 ---
 
@@ -205,12 +221,17 @@
 
 ## Upcoming stages
 
-### ⬜ Stage 17 — Distribution (pre-scale)
+### ✅ Stage 17a — Custom domain + stable API (done)
+
+- [x] Domain `gigtaxcanada.com` on web
+- [x] Stable API `api.gigtaxcanada.com` (Cloudflare named tunnel → Oracle Nest)
+- [x] Prod smoke on custom domain (odometer summary visible)
+
+### ⬜ Stage 17b — Distribution (pre-scale)
 
 - [ ] Landing / waitlist or 3 SEO pages (Uber Eats T2125 Canada, etc.)
 - [ ] 5 beta users from driver communities
 - [ ] One-paragraph positioning vs RideWiz finalized
-- [ ] Optional: own domain + Cloudflare named tunnel Public Hostname (stable API URL)
 
 ---
 
@@ -284,6 +305,7 @@ curl -s -X POST http://localhost:4000/odometer-readings \
 | 2026-07-27 | 14+ | Dashboard: expense×% label, `platformKmGap` card; prod redeploy verified |
 | 2026-07-28 | 15 | Odometer readings; personal km = odometer total − business; warn at 100% business |
 | 2026-07-28 | 16 | Double-count warning; Edit CRUD; platform hints; period batch; gap-label copy |
+| 2026-07-28 | 17a | Custom domain gigtaxcanada.com + stable api.gigtaxcanada.com |
 
 ---
 

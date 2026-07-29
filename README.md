@@ -2,6 +2,7 @@
 
 Canada-first mileage and vehicle expense tracking for gig drivers (Uber Eats, DoorDash, etc.). Helps you estimate T2125-style business use % and deductible vehicle expenses — **not tax advice**.
 
+- **Production:** https://gigtaxcanada.com · API https://api.gigtaxcanada.com
 - **Product plan:** [PLAN.md](./PLAN.md)
 - **Build progress:** [progress-tracker.md](./progress-tracker.md)
 
