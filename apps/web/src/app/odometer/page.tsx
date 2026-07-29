@@ -157,7 +157,7 @@ export default function OdometerPage() {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50"
+              className="cursor-pointer rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving
                 ? "Saving..."
@@ -169,7 +169,7 @@ export default function OdometerPage() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="rounded-lg border bg-white px-4 py-2 text-sm text-zinc-900"
+                className="cursor-pointer rounded-lg border bg-white px-4 py-2 text-sm text-zinc-900"
               >
                 Cancel
               </button>
@@ -200,14 +200,14 @@ export default function OdometerPage() {
                     <button
                       type="button"
                       onClick={() => startEdit(row)}
-                      className="text-sm text-zinc-700 underline"
+                      className="cursor-pointer text-sm text-zinc-700 underline"
                     >
                       Edit
                     </button>
                     <button
                       type="button"
                       onClick={() => void onDelete(row.id)}
-                      className="text-sm text-red-600 underline"
+                      className="cursor-pointer text-sm text-red-600 underline"
                     >
                       Delete
                     </button>

@@ -198,7 +198,7 @@ export default function ExpensesPage() {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50"
+              className="cursor-pointer rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving
                 ? "Saving..."
@@ -210,7 +210,7 @@ export default function ExpensesPage() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="rounded-lg border bg-white px-4 py-2 text-sm text-zinc-900"
+                className="cursor-pointer rounded-lg border bg-white px-4 py-2 text-sm text-zinc-900"
               >
                 Cancel
               </button>
@@ -244,14 +244,14 @@ export default function ExpensesPage() {
                     <button
                       type="button"
                       onClick={() => startEdit(e)}
-                      className="text-zinc-700 underline"
+                      className="cursor-pointer text-zinc-700 underline"
                     >
                       Edit
                     </button>
                     <button
                       type="button"
                       onClick={() => void onDelete(e.id)}
-                      className="text-red-600 underline"
+                      className="cursor-pointer text-red-600 underline"
                     >
                       Delete
                     </button>
