@@ -19,6 +19,7 @@ export default function OdometerPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [date, setDate] = useState(`${TAX_YEAR}-01-01`);
   const [reading, setReading] = useState("");
@@ -46,17 +47,34 @@ export default function OdometerPage() {
     };
   }, [router, load]);
 
+  function resetForm() {
+    setEditingId(null);
+    setDate(`${TAX_YEAR}-01-01`);
+    setReading("");
+    setNote("");
+  }
+
+  function startEdit(row: OdometerReading) {
+    setEditingId(row.id);
+    setDate(row.date.slice(0, 10));
+    setReading(String(row.reading));
+    setNote(row.note ?? "");
+    setError(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
     try {
+      // Upsert by date — editing a row reuses the same date key.
       await upsertOdometerReading({
         date,
         reading: parseFloat(reading),
         note: note || undefined,
       });
-      setNote("");
+      resetForm();
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
@@ -69,6 +87,7 @@ export default function OdometerPage() {
     setError(null);
     try {
       await deleteOdometerReading(id);
+      if (editingId === id) resetForm();
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete");
@@ -95,7 +114,9 @@ export default function OdometerPage() {
           onSubmit={onSubmit}
           className="mt-6 space-y-4 rounded-2xl border bg-white p-6 shadow-sm"
         >
-          <h2 className="font-medium text-zinc-900">Add / update reading</h2>
+          <h2 className="font-medium text-zinc-900">
+            {editingId ? "Edit reading" : "Add / update reading"}
+          </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-sm text-zinc-700">Date</label>
@@ -132,13 +153,28 @@ export default function OdometerPage() {
               onChange={(e) => setNote(e.target.value)}
             />
           </div>
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Save reading"}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50"
+            >
+              {saving
+                ? "Saving..."
+                : editingId
+                  ? "Save changes"
+                  : "Save reading"}
+            </button>
+            {editingId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="rounded-lg border bg-white px-4 py-2 text-sm text-zinc-900"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
 
         <div className="mt-6 rounded-2xl border bg-white p-6 shadow-sm">
@@ -160,13 +196,22 @@ export default function OdometerPage() {
                     </p>
                     {row.note && <p className="text-zinc-500">{row.note}</p>}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => void onDelete(row.id)}
-                    className="text-sm text-red-600 underline"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex shrink-0 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => startEdit(row)}
+                      className="text-sm text-zinc-700 underline"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void onDelete(row.id)}
+                      className="text-sm text-red-600 underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

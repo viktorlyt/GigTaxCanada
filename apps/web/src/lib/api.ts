@@ -96,6 +96,21 @@ export function createTrip(body: {
     body: JSON.stringify(body),
   });
 }
+export function updateTrip(
+  id: string,
+  body: {
+    date?: string;
+    kilometers?: number;
+    purpose?: TripPurpose;
+    platform?: GigPlatform;
+    note?: string;
+  },
+) {
+  return apiFetch<Trip>(`/trips/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
 export function deleteTrip(id: string) {
   return apiFetch<void>(`/trips/${id}`, { method: "DELETE" });
 }
@@ -110,6 +125,20 @@ export function createExpense(body: {
 }) {
   return apiFetch<Expense>("/expenses", {
     method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+export function updateExpense(
+  id: string,
+  body: {
+    date?: string;
+    amount?: number;
+    category?: ExpenseCategory;
+    note?: string;
+  },
+) {
+  return apiFetch<Expense>(`/expenses/${id}`, {
+    method: "PATCH",
     body: JSON.stringify(body),
   });
 }

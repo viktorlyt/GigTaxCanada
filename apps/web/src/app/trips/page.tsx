@@ -4,7 +4,13 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GigPlatform, PLATFORM_LABELS, TripPurpose } from "@gigtax/shared";
 import { AppNav } from "@/components/app-nav";
-import { createTrip, deleteTrip, getTrips, type Trip } from "@/lib/api";
+import {
+  createTrip,
+  deleteTrip,
+  getTrips,
+  updateTrip,
+  type Trip,
+} from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
 const TAX_YEAR = new Date().getFullYear();
@@ -16,6 +22,7 @@ export default function TripsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [date, setDate] = useState(today);
   const [kilometers, setKilometers] = useState("10");
@@ -45,19 +52,44 @@ export default function TripsPage() {
     };
   }, [router, load]);
 
+  function resetForm() {
+    setEditingId(null);
+    setDate(today());
+    setKilometers("10");
+    setPurpose(TripPurpose.BUSINESS);
+    setPlatform(GigPlatform.UBER_EATS);
+    setNote("");
+  }
+
+  function startEdit(t: Trip) {
+    setEditingId(t.id);
+    setDate(String(t.date).slice(0, 10));
+    setKilometers(String(t.kilometers));
+    setPurpose(t.purpose);
+    setPlatform(t.platform);
+    setNote(t.note ?? "");
+    setError(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
+    const body = {
+      date,
+      kilometers: parseFloat(kilometers),
+      purpose,
+      platform,
+      note: note || undefined,
+    };
     try {
-      await createTrip({
-        date,
-        kilometers: parseFloat(kilometers),
-        purpose,
-        platform,
-        note: note || undefined,
-      });
-      setNote("");
+      if (editingId) {
+        await updateTrip(editingId, body);
+      } else {
+        await createTrip(body);
+      }
+      resetForm();
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
@@ -70,6 +102,7 @@ export default function TripsPage() {
     if (!confirm("Delete this trip?")) return;
     try {
       await deleteTrip(id);
+      if (editingId === id) resetForm();
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete");
@@ -88,9 +121,11 @@ export default function TripsPage() {
 
         <form
           onSubmit={onSubmit}
-          className="rounded-2xl border bg-white p-6 shadow-sm space-y-4"
+          className="space-y-4 rounded-2xl border bg-white p-6 shadow-sm"
         >
-          <h2 className="font-medium text-zinc-900">Add trip</h2>
+          <h2 className="font-medium text-zinc-900">
+            {editingId ? "Edit trip" : "Add trip"}
+          </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-sm text-zinc-700">Date</label>
@@ -150,13 +185,28 @@ export default function TripsPage() {
               onChange={(e) => setNote(e.target.value)}
             />
           </div>
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Add trip"}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50"
+            >
+              {saving
+                ? "Saving..."
+                : editingId
+                  ? "Save changes"
+                  : "Add trip"}
+            </button>
+            {editingId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="rounded-lg border bg-white px-4 py-2 text-sm text-zinc-900"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
 
         <div className="mt-6 rounded-2xl border bg-white p-6 shadow-sm">
@@ -170,7 +220,7 @@ export default function TripsPage() {
               {trips.map((t) => (
                 <li
                   key={t.id}
-                  className="flex items-center justify-between py-3 text-sm"
+                  className="flex items-center justify-between gap-4 py-3 text-sm"
                 >
                   <div>
                     <p className="font-medium text-zinc-900">
@@ -182,13 +232,22 @@ export default function TripsPage() {
                       {t.note ? ` · ${t.note}` : ""}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => void onDelete(t.id)}
-                    className="text-red-600 underline"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex shrink-0 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => startEdit(t)}
+                      className="text-zinc-700 underline"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void onDelete(t.id)}
+                      className="text-red-600 underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

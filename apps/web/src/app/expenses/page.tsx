@@ -8,6 +8,7 @@ import {
   createExpense,
   deleteExpense,
   getExpenses,
+  updateExpense,
   type Expense,
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
@@ -39,6 +40,7 @@ export default function ExpensesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [date, setDate] = useState(today);
   const [amount, setAmount] = useState("50");
@@ -71,18 +73,41 @@ export default function ExpensesPage() {
     };
   }, [router, load]);
 
+  function resetForm() {
+    setEditingId(null);
+    setDate(today());
+    setAmount("50");
+    setCategory(ExpenseCategory.FUEL);
+    setNote("");
+  }
+
+  function startEdit(e: Expense) {
+    setEditingId(e.id);
+    setDate(String(e.date).slice(0, 10));
+    setAmount(String(e.amount));
+    setCategory(e.category);
+    setNote(e.note ?? "");
+    setError(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
+    const body = {
+      date,
+      amount: parseFloat(amount),
+      category,
+      note: note || undefined,
+    };
     try {
-      await createExpense({
-        date,
-        amount: parseFloat(amount),
-        category,
-        note: note || undefined,
-      });
-      setNote("");
+      if (editingId) {
+        await updateExpense(editingId, body);
+      } else {
+        await createExpense(body);
+      }
+      resetForm();
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
@@ -95,6 +120,7 @@ export default function ExpensesPage() {
     if (!confirm("Delete this expense?")) return;
     try {
       await deleteExpense(id);
+      if (editingId === id) resetForm();
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete");
@@ -113,9 +139,11 @@ export default function ExpensesPage() {
 
         <form
           onSubmit={onSubmit}
-          className="rounded-2xl border bg-white p-6 shadow-sm space-y-4"
+          className="space-y-4 rounded-2xl border bg-white p-6 shadow-sm"
         >
-          <h2 className="font-medium text-zinc-900">Add expense</h2>
+          <h2 className="font-medium text-zinc-900">
+            {editingId ? "Edit expense" : "Add expense"}
+          </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-sm text-zinc-700">Date</label>
@@ -166,13 +194,28 @@ export default function ExpensesPage() {
               onChange={(e) => setNote(e.target.value)}
             />
           </div>
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Add expense"}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50"
+            >
+              {saving
+                ? "Saving..."
+                : editingId
+                  ? "Save changes"
+                  : "Add expense"}
+            </button>
+            {editingId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="rounded-lg border bg-white px-4 py-2 text-sm text-zinc-900"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
 
         <div className="mt-6 rounded-2xl border bg-white p-6 shadow-sm">
@@ -186,7 +229,7 @@ export default function ExpensesPage() {
               {expenses.map((e) => (
                 <li
                   key={e.id}
-                  className="flex items-center justify-between py-3 text-sm"
+                  className="flex items-center justify-between gap-4 py-3 text-sm"
                 >
                   <div>
                     <p className="font-medium text-zinc-900">
@@ -197,13 +240,22 @@ export default function ExpensesPage() {
                       {e.note ? ` · ${e.note}` : ""}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => void onDelete(e.id)}
-                    className="text-red-600 underline"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex shrink-0 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => startEdit(e)}
+                      className="text-zinc-700 underline"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void onDelete(e.id)}
+                      className="text-red-600 underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
