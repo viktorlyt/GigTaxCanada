@@ -51,7 +51,7 @@ export const PLATFORM_KM_HINT: Record<GigPlatform, string> = {
   [GigPlatform.UBER_RIDES]:
     "Use the year-end statement km on Platform km. On Trips, log only gap km — do not re-log every trip.",
   [GigPlatform.INSTACART]:
-    "Instacart usually has no annual km. Leave Platform km empty; log all Instacart business km on Trips (daily or weekly batches).",
+    "Instacart usually has no annual km. Leave Platform km empty; log all Instacart business km on Trips (single trips or period batches).",
   [GigPlatform.OTHER]:
     "If the platform gives annual km, enter it under Platform km; otherwise log business km on Trips.",
   [GigPlatform.NONE]:

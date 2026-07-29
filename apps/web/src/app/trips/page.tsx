@@ -22,6 +22,8 @@ import { getToken } from "@/lib/auth";
 const TAX_YEAR = new Date().getFullYear();
 const today = () => new Date().toISOString().slice(0, 10);
 
+type EntryMode = "single" | "range";
+
 export default function TripsPage() {
   const router = useRouter();
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -29,8 +31,11 @@ export default function TripsPage() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [entryMode, setEntryMode] = useState<EntryMode>("single");
 
   const [date, setDate] = useState(today);
+  const [rangeStart, setRangeStart] = useState(today);
+  const [rangeEnd, setRangeEnd] = useState(today);
   const [kilometers, setKilometers] = useState("10");
   const [purpose, setPurpose] = useState<TripPurpose>(TripPurpose.BUSINESS);
   const [platform, setPlatform] = useState<GigPlatform>(GigPlatform.UBER_EATS);
@@ -60,7 +65,10 @@ export default function TripsPage() {
 
   function resetForm() {
     setEditingId(null);
+    setEntryMode("single");
     setDate(today());
+    setRangeStart(today());
+    setRangeEnd(today());
     setKilometers("10");
     setPurpose(TripPurpose.BUSINESS);
     setPlatform(GigPlatform.UBER_EATS);
@@ -69,6 +77,7 @@ export default function TripsPage() {
 
   function startEdit(t: Trip) {
     setEditingId(t.id);
+    setEntryMode("single");
     setDate(String(t.date).slice(0, 10));
     setKilometers(String(t.kilometers));
     setPurpose(t.purpose);
@@ -82,18 +91,45 @@ export default function TripsPage() {
     e.preventDefault();
     setSaving(true);
     setError(null);
-    const body = {
-      date,
-      kilometers: parseFloat(kilometers),
-      purpose,
-      platform,
-      note: note || undefined,
-    };
+
+    const km = parseFloat(kilometers);
+    if (Number.isNaN(km) || km <= 0) {
+      setError("Kilometers must be a positive number");
+      setSaving(false);
+      return;
+    }
+
     try {
       if (editingId) {
-        await updateTrip(editingId, body);
+        await updateTrip(editingId, {
+          date,
+          kilometers: km,
+          purpose,
+          platform,
+          note: note || undefined,
+        });
+      } else if (entryMode === "range") {
+        if (rangeEnd < rangeStart) {
+          setError("Period end must be on or after period start");
+          setSaving(false);
+          return;
+        }
+        // One BUSINESS trip for the period — note keeps the range for CRA.
+        await createTrip({
+          date: rangeEnd,
+          kilometers: km,
+          purpose: TripPurpose.BUSINESS,
+          platform,
+          note: note.trim() || `${rangeStart} → ${rangeEnd}`,
+        });
       } else {
-        await createTrip(body);
+        await createTrip({
+          date,
+          kilometers: km,
+          purpose,
+          platform,
+          note: note || undefined,
+        });
       }
       resetForm();
       load();
@@ -114,6 +150,8 @@ export default function TripsPage() {
       setError(err instanceof Error ? err.message : "Failed to delete");
     }
   }
+
+  const showRange = !editingId && entryMode === "range";
 
   return (
     <div className="flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
@@ -141,24 +179,90 @@ export default function TripsPage() {
 
         <form
           onSubmit={onSubmit}
-          className="space-y-4 rounded-2xl border bg-white p-6 shadow-sm"
+          className="mt-4 space-y-4 rounded-2xl border bg-white p-6 shadow-sm"
         >
           <h2 className="font-medium text-zinc-900">
-            {editingId ? "Edit trip" : "Add trip"}
+            {editingId
+              ? "Edit trip"
+              : showRange
+                ? "Add period business km"
+                : "Add trip"}
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-sm text-zinc-700">Date</label>
-              <input
-                type="date"
-                className="mt-1 w-full rounded-lg border px-3 py-2"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-              />
+
+          {!editingId && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setEntryMode("single")}
+                className={`cursor-pointer rounded-lg px-3 py-1.5 text-sm ${
+                  entryMode === "single"
+                    ? "bg-zinc-900 text-white"
+                    : "bg-zinc-100 text-zinc-700"
+                }`}
+              >
+                Single trip
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEntryMode("range");
+                  setPurpose(TripPurpose.BUSINESS);
+                }}
+                className={`cursor-pointer rounded-lg px-3 py-1.5 text-sm ${
+                  entryMode === "range"
+                    ? "bg-zinc-900 text-white"
+                    : "bg-zinc-100 text-zinc-700"
+                }`}
+              >
+                Period batch
+              </button>
             </div>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {showRange ? (
+              <>
+                <div>
+                  <label className="block text-sm text-zinc-700">
+                    Period start
+                  </label>
+                  <input
+                    type="date"
+                    className="mt-1 w-full rounded-lg border px-3 py-2"
+                    value={rangeStart}
+                    onChange={(e) => setRangeStart(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-zinc-700">
+                    Period end
+                  </label>
+                  <input
+                    type="date"
+                    className="mt-1 w-full rounded-lg border px-3 py-2"
+                    value={rangeEnd}
+                    onChange={(e) => setRangeEnd(e.target.value)}
+                    required
+                  />
+                </div>
+              </>
+            ) : (
+              <div>
+                <label className="block text-sm text-zinc-700">Date</label>
+                <input
+                  type="date"
+                  className="mt-1 w-full rounded-lg border px-3 py-2"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  required
+                />
+              </div>
+            )}
             <div>
-              <label className="block text-sm text-zinc-700">Kilometers</label>
+              <label className="block text-sm text-zinc-700">
+                {showRange ? "Total km for period" : "Kilometers"}
+              </label>
               <input
                 type="number"
                 step="0.1"
@@ -169,18 +273,20 @@ export default function TripsPage() {
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm text-zinc-700">Purpose</label>
-              <select
-                className="mt-1 w-full rounded-lg border px-3 py-2"
-                value={purpose}
-                onChange={(e) => setPurpose(e.target.value as TripPurpose)}
-              >
-                <option value={TripPurpose.BUSINESS}>Business</option>
-                <option value={TripPurpose.PERSONAL}>Personal</option>
-              </select>
-            </div>
-            <div>
+            {!showRange && (
+              <div>
+                <label className="block text-sm text-zinc-700">Purpose</label>
+                <select
+                  className="mt-1 w-full rounded-lg border px-3 py-2"
+                  value={purpose}
+                  onChange={(e) => setPurpose(e.target.value as TripPurpose)}
+                >
+                  <option value={TripPurpose.BUSINESS}>Business</option>
+                  <option value={TripPurpose.PERSONAL}>Personal</option>
+                </select>
+              </div>
+            )}
+            <div className={showRange ? "sm:col-span-2" : undefined}>
               <label className="block text-sm text-zinc-700">Platform</label>
               <select
                 className="mt-1 w-full rounded-lg border px-3 py-2"
@@ -198,11 +304,20 @@ export default function TripsPage() {
           <div>
             <label className="block text-sm text-zinc-700">
               Note (optional)
+              {showRange && (
+                <span className="font-normal text-zinc-500">
+                  {" "}
+                  — defaults to date range
+                </span>
+              )}
             </label>
             <input
               className="mt-1 w-full rounded-lg border px-3 py-2"
               value={note}
               onChange={(e) => setNote(e.target.value)}
+              placeholder={
+                showRange ? `${rangeStart} → ${rangeEnd}` : undefined
+              }
             />
           </div>
           <div className="flex flex-wrap gap-2">
@@ -215,7 +330,9 @@ export default function TripsPage() {
                 ? "Saving..."
                 : editingId
                   ? "Save changes"
-                  : "Add trip"}
+                  : showRange
+                    ? "Add period km"
+                    : "Add trip"}
             </button>
             {editingId && (
               <button

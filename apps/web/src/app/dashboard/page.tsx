@@ -115,18 +115,18 @@ export default function DashboardPage() {
         {summary.platformReportedKm > 0 && (
           <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
             <p className="text-xs text-emerald-800">
-              Platform km reconciliation
+              Manual business beyond platform statements
             </p>
             <p className="mt-1 text-lg font-semibold text-emerald-900">
               {summary.platformKmGap > 0 ? "+" : ""}
-              {summary.platformKmGap} km vs platform reports
+              {summary.platformKmGap} km from Trips
             </p>
             <p className="mt-1 text-sm text-emerald-800">
               {summary.platformKmGap > 0
-                ? "Logged beyond what platforms reported — keep those records."
+                ? "Extra business km from Trips (gap / Instacart / off-platform). Keep notes for CRA."
                 : summary.platformKmGap < 0
-                  ? "Platforms report more than your business trips — check imports or missing trips."
-                  : "Matches platform-reported km."}
+                  ? "Platform statements exceed logged business trips — check imports or missing Trips."
+                  : "No extra Trips beyond platform statements."}
             </p>
           </div>
         )}
