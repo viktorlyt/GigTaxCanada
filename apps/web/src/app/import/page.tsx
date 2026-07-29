@@ -25,13 +25,11 @@ export default function ImportPage() {
   const [note, setNote] = useState("");
 
   const load = useCallback(() => {
-    setLoading(true);
-    getPlatformImports(TAX_YEAR)
+    return getPlatformImports(TAX_YEAR)
       .then(setImports)
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load"),
-      )
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "Failed to load");
+      });
   }, []);
 
   useEffect(() => {
@@ -39,7 +37,13 @@ export default function ImportPage() {
       router.replace("/login");
       return;
     }
-    load();
+    let cancelled = false;
+    void load().finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [router, load]);
 
   async function onSubmit(e: FormEvent) {

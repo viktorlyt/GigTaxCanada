@@ -2,7 +2,7 @@
 
 > **How to use:** Update this file after every **big stage** (a numbered build step or a major feature slice). Mark stages ✅ when verified (curl, browser, or deploy). Link PRs/commits optionally in **Notes**.
 
-**Last updated:** 2026-07-27  
+**Last updated:** 2026-07-28  
 **Product wedge:** Multi-platform km reconciliation + expense business-use % (vs RideWiz auto-GPS)  
 **Stack:** Turborepo · Next.js (`apps/web`) · NestJS (`apps/api`) · PostgreSQL · Prisma · `@gigtax/shared`
 
@@ -13,9 +13,9 @@
 | Area | Status |
 |------|--------|
 | Monorepo + shared package | ✅ Done |
-| API (auth, trips, expenses, summary, platform imports) | ✅ Done |
+| API (auth, trips, expenses, summary, platform imports, odometer) | ✅ Done |
 | Web (login + dashboard) | ✅ Done |
-| Web (trips / expenses / import forms) | ✅ Done |
+| Web (trips / expenses / import / odometer forms) | ✅ Done |
 | PWA + README | ✅ Done |
 | Deploy beta | ✅ Done |
 | Stable API hostname (named tunnel + own domain) | ⬜ Next (optional) |
@@ -39,7 +39,7 @@
 ### ✅ Stage 2 — `@gigtax/shared`
 
 - [x] Enums: `TripPurpose`, `GigPlatform`, `ExpenseCategory`
-- [x] `PLATFORM_LABELS`, `TaxYearSummary` (incl. `platformReportedKm`, `platformKmGap`)
+- [x] `PLATFORM_LABELS`, `TaxYearSummary` (incl. `platformReportedKm`, `platformKmGap`, odometer + warn flags)
 
 **Notes:** Single source of truth for web + API labels.
 
@@ -175,9 +175,23 @@
 
 ---
 
+### ✅ Stage 15 — Odometer readings + simplified personal km
+
+- [x] Prisma `OdometerReading` (`userId` + `date` unique)
+- [x] `GET/POST/DELETE /odometer-readings`
+- [x] Summary: if ≥2 readings in tax year → `totalKm = latest − earliest`, `personalKm = max(0, totalKm − businessKm)`; else fallback to `PERSONAL` trips
+- [x] `warnUnrealisticBusinessUse` when ~100% business / 0 personal
+- [x] Shared fields: `odometerTotalKm`, `usedOdometer`, `warnUnrealisticBusinessUse`
+- [x] Web `/odometer` + AppNav + dashboard personal/total km + odometer card
+- [x] Unit tests: `summary.service.spec.ts`, `odometer-readings.service.spec.ts`
+
+**Verified:** Dashboard amber warning at 100% business; after 2 odometer readings → personal km recalculated, warning clears, sky “odometer-based” card.
+
+---
+
 ## Upcoming stages
 
-### ⬜ Stage 15 — Distribution (pre-scale)
+### ⬜ Stage 16 — Distribution (pre-scale)
 
 - [ ] Landing / waitlist or 3 SEO pages (Uber Eats T2125 Canada, etc.)
 - [ ] 5 beta users from driver communities
@@ -191,7 +205,6 @@
 | Item | Priority |
 |------|----------|
 | Tax year selector in UI | Medium |
-| Vehicle profile (odometer start/end) | Medium |
 | Optional CRA per-km allowance estimate (comparison only, not tax advice) | Low / after MVP |
 | Google OAuth | Low |
 | Stripe / tax-season pass pricing | After 5–10 users |
@@ -210,6 +223,7 @@
 | Expenses | `/expenses` | ✅ |
 | Summary | `/summary`, `/summary/export` | ✅ |
 | Platform imports | `/platform-imports` | ✅ |
+| Odometer readings | `/odometer-readings` | ✅ |
 | Health | `/health` | ✅ |
 
 ---
@@ -232,6 +246,14 @@ export TOKEN=$(curl -s -X POST http://localhost:4000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"driver@test.com","password":"password123"}' \
   | python3 -c "import sys,json; print(json.load(sys.stdin)['accessToken'])")
+
+# Odometer (optional — enables personal km = total − business)
+curl -s -X POST http://localhost:4000/odometer-readings \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"date":"2026-01-01","reading":10000}'
+curl -s -X POST http://localhost:4000/odometer-readings \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"date":"2026-12-31","reading":20000}'
 ```
 
 ---
@@ -246,6 +268,7 @@ export TOKEN=$(curl -s -X POST http://localhost:4000/auth/login \
 | 2026-05-20 | 12–13 | Web CRUD pages, AppNav, PWA manifest, env examples, root README |
 | 2026-05-21 | 14 | Neon + Oracle API + Cloudflare tunnel + Vercel web; prod smoke |
 | 2026-07-27 | 14+ | Dashboard: expense×% label, `platformKmGap` card; prod redeploy verified |
+| 2026-07-28 | 15 | Odometer readings; personal km = odometer total − business; warn at 100% business |
 
 ---
 

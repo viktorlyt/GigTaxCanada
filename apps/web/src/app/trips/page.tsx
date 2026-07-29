@@ -24,13 +24,11 @@ export default function TripsPage() {
   const [note, setNote] = useState("");
 
   const load = useCallback(() => {
-    setLoading(true);
-    getTrips(TAX_YEAR)
+    return getTrips(TAX_YEAR)
       .then(setTrips)
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load"),
-      )
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "Failed to load");
+      });
   }, []);
 
   useEffect(() => {
@@ -38,7 +36,13 @@ export default function TripsPage() {
       router.replace("/login");
       return;
     }
-    load();
+    let cancelled = false;
+    void load().finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [router, load]);
 
   async function onSubmit(e: FormEvent) {

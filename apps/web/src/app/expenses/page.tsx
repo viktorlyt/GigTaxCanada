@@ -48,15 +48,13 @@ export default function ExpensesPage() {
   const [note, setNote] = useState("");
 
   const load = useCallback(() => {
-    setLoading(true);
-    getExpenses(TAX_YEAR)
+    return getExpenses(TAX_YEAR)
       .then((rows) =>
         setExpenses(rows.map((e) => ({ ...e, amount: Number(e.amount) }))),
       )
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load"),
-      )
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "Failed to load");
+      });
   }, []);
 
   useEffect(() => {
@@ -64,7 +62,13 @@ export default function ExpensesPage() {
       router.replace("/login");
       return;
     }
-    load();
+    let cancelled = false;
+    void load().finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [router, load]);
 
   async function onSubmit(e: FormEvent) {

@@ -77,7 +77,7 @@ npm run dev
 - Web: http://localhost:3000
 - API health: http://localhost:4000/health
 
-Register a user or use your test account, then open **Summary**, **Trips**, **Expenses**, **Platform km**.
+Register a user or use your test account, then open **Summary**, **Trips**, **Expenses**, **Platform km**, **Odometer**.
 
 ## Project layout
 
@@ -103,8 +103,12 @@ gig-tax-canada/
 | GET/POST | `/trips?taxYear=2026` | List / create trips |
 | GET/POST | `/expenses?taxYear=2026` | List / create expenses |
 | GET/POST | `/platform-imports?taxYear=2026` | List / upsert platform km |
+| GET/POST | `/odometer-readings?taxYear=2026` | List / upsert odometer reading |
+| DELETE | `/odometer-readings/:id` | Delete odometer reading |
 | GET | `/summary?taxYear=2026` | Tax year summary |
 | GET | `/summary/export?taxYear=2026` | CSV export |
+
+**Odometer shortcut:** with **2+** readings in the tax year, summary sets `totalKm = latest − earliest` and `personalKm = max(0, totalKm − businessKm)` (PERSONAL trip logs are ignored for that %). With fewer than 2 readings, personal km still comes from `PERSONAL` trips.
 
 ### Example: login + summary (curl)
 

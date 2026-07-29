@@ -50,7 +50,7 @@ Canada-first, T2125-oriented tooling for gig workers, built as **web/PWA first**
 ### Add (small effort, high trust)
 
 - **Tax year selector** (default current calendar year)
-- **Vehicle profile** (one vehicle for v1): optional odometer start/end for year
+- **Odometer readings** (done): arbitrary dated readings; with ≥2 in a tax year, personal km = (latest − earliest) − business km (CRA-friendly simplified personal tracking)
 - **“Import platform km”** — single numeric field: “Uber (or other) annual business km from statement” plus manual trips for the gap
 - **Disclaimer** on every export: information only, not tax advice; keep records 6 years (CRA)
 
@@ -78,7 +78,7 @@ Canada-first, T2125-oriented tooling for gig workers, built as **web/PWA first**
 ```
 gig-tax-canada/
 ├── apps/web/          # Next.js App Router, PWA manifest
-├── apps/api/          # NestJS modules: auth, trips, expenses, summary
+├── apps/api/          # NestJS modules: auth, trips, expenses, summary, platform-imports, odometer-readings
 ├── packages/shared/   # enums + TaxYearSummary types
 └── apps/api/prisma/   # schema + PrismaModule
 ```
