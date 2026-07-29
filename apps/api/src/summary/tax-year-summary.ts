@@ -13,4 +13,5 @@ export interface TaxYearSummary {
   warnUnrealisticBusinessUse: boolean;
   odometerTotalKm: number;
   usedOdometer: boolean;
+  warnPossibleDoubleCount: boolean;
 }

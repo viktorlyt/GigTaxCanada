@@ -75,7 +75,7 @@ export class SummaryService {
     for (const e of expenses) {
       const amount = Number(e.amount);
       totalExpenses += amount;
-      if (FULL_DEDUCT_CATEGORIES.has(e.category)) {
+      if (FULL_DEDUCT_CATEGORIES.has(e.category as ExpenseCategory)) {
         deductibleExpenses += amount;
       } else {
         deductibleExpenses += amount * ratio;
@@ -91,12 +91,22 @@ export class SummaryService {
     const warnUnrealisticBusinessUse =
       businessUsePercent >= 99 && personalKm === 0 && businessKm > 0;
 
+    // Bug-fix signal: same platform in import + BUSINESS trips → statement km likely counted twice.
+    const warnPossibleDoubleCount = platformImports.some(
+      (p) =>
+        p.reportedKm > 0 &&
+        trips.some(
+          (t) =>
+            t.purpose === TripPurpose.BUSINESS && t.platform === p.platform,
+        ),
+    );
+
     return {
       taxYear,
-      totalKm: round1(totalKm),
-      businessKm: round1(businessKm),
-      personalKm: round1(personalKm),
-      platformReportedKm: round1(platformReportedKm),
+      totalKm: round1(Number(totalKm)),
+      businessKm: round1(Number(businessKm)),
+      personalKm: round1(Number(personalKm)),
+      platformReportedKm: round1(Number(platformReportedKm)),
       platformKmGap,
       businessUsePercent,
       totalExpenses: round2(totalExpenses),
@@ -105,6 +115,7 @@ export class SummaryService {
       warnUnrealisticBusinessUse,
       odometerTotalKm: round1(odometerTotalKm),
       usedOdometer,
+      warnPossibleDoubleCount,
     };
   }
 
@@ -125,6 +136,7 @@ export class SummaryService {
       `warnUnrealisticBusinessUse,${s.warnUnrealisticBusinessUse}`,
       `odometerTotalKm,${s.odometerTotalKm}`,
       `usedOdometer,${s.usedOdometer}`,
+      `warnPossibleDoubleCount,${s.warnPossibleDoubleCount}`,
     ].join('\n');
   }
 }

@@ -50,4 +50,9 @@ export interface TaxYearSummary {
   odometerTotalKm: number;
   /** true when personal/total km came from odometer, not PERSONAL trips */
   usedOdometer: boolean;
+  /**
+   * True when a platform year-end import exists and BUSINESS trips
+   * use the same platform — likely double-counting statement km.
+   */
+  warnPossibleDoubleCount: boolean;
 }

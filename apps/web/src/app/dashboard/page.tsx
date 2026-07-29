@@ -159,6 +159,31 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {summary.warnPossibleDoubleCount && (
+          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
+            <p className="text-sm font-medium text-red-900">
+              Possible double-count: platform statement + same-platform trips
+            </p>
+            <p className="mt-1 text-sm text-red-800">
+              You imported year-end km for a platform and also logged BUSINESS
+              trips on that platform. Those trip km are added on top of the
+              statement — if they are already in the report, delete them or your
+              deductible will be too high. True gap km (to first order, etc.)
+              should use platform &quot;Off-platform / errands&quot;, not the
+              same app name.
+            </p>
+            <p className="mt-2 text-sm">
+              <Link href="/trips" className="underline">
+                Review trips
+              </Link>
+              {" · "}
+              <Link href="/import" className="underline">
+                Review platform km
+              </Link>
+            </p>
+          </div>
+        )}
+
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href="/trips"
