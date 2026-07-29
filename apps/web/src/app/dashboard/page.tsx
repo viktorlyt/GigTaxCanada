@@ -100,6 +100,8 @@ export default function DashboardPage() {
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Stat label="Business use" value={`${summary.businessUsePercent}%`} />
           <Stat label="Business km" value={`${summary.businessKm} km`} />
+          <Stat label="Personal km" value={`${summary.personalKm} km`} />
+          <Stat label="Total km" value={`${summary.totalKm} km`} />
           <Stat
             label="Platform reported km"
             value={`${summary.platformReportedKm} km`}
@@ -129,15 +131,30 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {summary.usedOdometer && (
+          <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50 p-4">
+            <p className="text-xs text-sky-800">Odometer-based personal km</p>
+            <p className="mt-1 text-lg font-semibold text-sky-900">
+              {summary.personalKm} personal km · {summary.odometerTotalKm} total
+              km
+            </p>
+            <p className="mt-1 text-sm text-sky-800">
+              personal = odometer total − business km
+            </p>
+          </div>
+        )}
+
         {summary.warnUnrealisticBusinessUse && (
           <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
             <p className="text-sm font-medium text-amber-900">
               100% business use with no personal km is unusual
             </p>
             <p className="mt-1 text-sm text-amber-800">
-              CRA audits often expect some personal driving. Log personal trips,
-              or add odometer readings so personal km can be calculated as total
-              minus business.
+              CRA audits often expect some personal driving.{" "}
+              <Link href="/odometer" className="underline">
+                Add odometer readings
+              </Link>{" "}
+              so personal km = total − business, or log personal trips.
             </p>
           </div>
         )}
@@ -160,6 +177,12 @@ export default function DashboardPage() {
             className="rounded-lg border bg-white px-4 py-2 text-sm text-zinc-900"
           >
             Import platform km
+          </Link>
+          <Link
+            href="/odometer"
+            className="rounded-lg border bg-white px-4 py-2 text-sm text-zinc-900"
+          >
+            Odometer
           </Link>
           <button
             type="button"

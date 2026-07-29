@@ -11,4 +11,6 @@ export interface TaxYearSummary {
   deductibleExpenses: number;
   potentialMissedDeduction: number;
   warnUnrealisticBusinessUse: boolean;
+  odometerTotalKm: number;
+  usedOdometer: boolean;
 }

@@ -145,3 +145,29 @@ export async function downloadSummaryCsv(taxYear: number) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+export type OdometerReading = {
+  id: string;
+  date: string;
+  reading: number;
+  note: string | null;
+};
+
+export function getOdometerReadings(taxYear: number) {
+  return apiFetch<OdometerReading[]>(`/odometer-readings?taxYear=${taxYear}`);
+}
+
+export function upsertOdometerReading(body: {
+  date: string;
+  reading: number;
+  note?: string;
+}) {
+  return apiFetch<OdometerReading>("/odometer-readings", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function deleteOdometerReading(id: string) {
+  return apiFetch<void>(`/odometer-readings/${id}`, { method: "DELETE" });
+}

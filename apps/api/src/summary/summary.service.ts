@@ -20,11 +20,15 @@ export class SummaryService {
       lte: new Date(`${taxYear}-12-31`),
     };
 
-    const [trips, expenses, platformImports] = await Promise.all([
-      this.prisma.trip.findMany({ where: { userId, date: dateRange } }),
-      this.prisma.expense.findMany({ where: { userId, date: dateRange } }),
-      this.prisma.platformImport.findMany({ where: { userId, taxYear } }),
-    ]);
+    const [trips, expenses, platformImports, odometerReadings] =
+      await Promise.all([
+        this.prisma.trip.findMany({ where: { userId, date: dateRange } }),
+        this.prisma.expense.findMany({ where: { userId, date: dateRange } }),
+        this.prisma.platformImport.findMany({ where: { userId, taxYear } }),
+        this.prisma.odometerReading.findMany({
+          where: { userId, date: dateRange },
+        }),
+      ]);
 
     const platformReportedKm = platformImports.reduce(
       (s, p) => s + p.reportedKm,
@@ -35,15 +39,34 @@ export class SummaryService {
       .filter((t) => t.purpose === TripPurpose.BUSINESS)
       .reduce((s, t) => s + t.kilometers, 0);
 
-    const personalKm = trips
+    const personalKmFromTrips = trips
       .filter((t) => t.purpose === TripPurpose.PERSONAL)
       .reduce((s, t) => s + t.kilometers, 0);
 
     const businessKm = businessKmFromTrips + platformReportedKm;
     const platformKmGap = round1(businessKm - platformReportedKm);
-    const totalKm = businessKm + personalKm;
+
+    let odometerTotalKm = 0;
+    let usedOdometer = false;
+    let personalKm = personalKmFromTrips;
+    let totalKm = businessKm + personalKm;
+
+    if (odometerReadings.length >= 2) {
+      const sorted = [...odometerReadings].sort(
+        (a, b) => a.date.getTime() - b.date.getTime(),
+      );
+      const earliest = sorted[0]!.reading;
+      const latest = sorted[sorted.length - 1]!.reading;
+      odometerTotalKm = Math.max(0, latest - earliest);
+      usedOdometer = true;
+      totalKm = odometerTotalKm;
+      personalKm = Math.max(0, totalKm - businessKm);
+    }
+
     const businessUsePercent =
-      totalKm > 0 ? Math.round((businessKm / totalKm) * 10000) / 100 : 0;
+      totalKm > 0
+        ? Math.min(100, Math.round((businessKm / totalKm) * 10000) / 100)
+        : 0;
 
     const ratio = businessUsePercent / 100;
     let totalExpenses = 0;
@@ -80,6 +103,8 @@ export class SummaryService {
       deductibleExpenses: round2(deductibleExpenses),
       potentialMissedDeduction,
       warnUnrealisticBusinessUse,
+      odometerTotalKm: round1(odometerTotalKm),
+      usedOdometer,
     };
   }
 
@@ -98,6 +123,8 @@ export class SummaryService {
       `deductibleExpenses,${s.deductibleExpenses}`,
       `potentialMissedDeduction,${s.potentialMissedDeduction}`,
       `warnUnrealisticBusinessUse,${s.warnUnrealisticBusinessUse}`,
+      `odometerTotalKm,${s.odometerTotalKm}`,
+      `usedOdometer,${s.usedOdometer}`,
     ].join('\n');
   }
 }

@@ -8,6 +8,7 @@ const links = [
   { href: "/trips", label: "Trips" },
   { href: "/expenses", label: "Expenses" },
   { href: "/import", label: "Platform km" },
+  { href: "/odometer", label: "Odometer" },
 ];
 
 export function AppNav() {

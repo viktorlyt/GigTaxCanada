@@ -46,4 +46,8 @@ export interface TaxYearSummary {
   potentialMissedDeduction: number;
   /** True when business use looks unrealistically high with no personal km logged */
   warnUnrealisticBusinessUse: boolean;
+  /** latest − earliest odometer reading in tax year; 0 if fewer than 2 readings */
+  odometerTotalKm: number;
+  /** true when personal/total km came from odometer, not PERSONAL trips */
+  usedOdometer: boolean;
 }
