@@ -51,7 +51,7 @@ Canada-first, T2125-oriented tooling for gig workers, built as **web/PWA first**
 
 - **Tax year selector** (default current calendar year)
 - **Odometer readings** (done): arbitrary dated readings; with ≥2 in a tax year, personal km = (latest − earliest) − business km (CRA-friendly simplified personal tracking)
-- **“Import platform km”** — single numeric field: “Uber (or other) annual business km from statement” plus manual trips for the gap
+- **“Import platform km”** — Uber/DoorDash year-end statement km + Trips for gap only; Instacart usually has no annual km (log on Trips / period batch). App warns if statement + same-platform trips would double-count.
 - **Disclaimer** on every export: information only, not tax advice; keep records 6 years (CRA)
 
 ### Defer (post-validation)

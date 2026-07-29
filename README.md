@@ -101,12 +101,16 @@ gig-tax-canada/
 | POST | `/auth/login` | Get `accessToken` |
 | GET | `/auth/me` | Current user |
 | GET/POST | `/trips?taxYear=2026` | List / create trips |
+| PATCH/DELETE | `/trips/:id` | Update / delete trip |
 | GET/POST | `/expenses?taxYear=2026` | List / create expenses |
+| PATCH/DELETE | `/expenses/:id` | Update / delete expense |
 | GET/POST | `/platform-imports?taxYear=2026` | List / upsert platform km |
 | GET/POST | `/odometer-readings?taxYear=2026` | List / upsert odometer reading |
 | DELETE | `/odometer-readings/:id` | Delete odometer reading |
 | GET | `/summary?taxYear=2026` | Tax year summary |
 | GET | `/summary/export?taxYear=2026` | CSV export |
+
+**Km modes:** Uber/DoorDash → import year-end km, then Trips only for **gap** (prefer platform “Off-platform / errands”). Instacart → usually no annual km; log on Trips (single or **period batch**). Summary warns (`warnPossibleDoubleCount`) if you import a platform and also log BUSINESS trips on that same platform.
 
 **Odometer shortcut:** with **2+** readings in the tax year, summary sets `totalKm = latest − earliest` and `personalKm = max(0, totalKm − businessKm)` (PERSONAL trip logs are ignored for that %). With fewer than 2 readings, personal km still comes from `PERSONAL` trips.
 

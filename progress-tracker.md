@@ -189,9 +189,23 @@
 
 ---
 
+### ✅ Stage 16 — Km UX: double-count guard, edit, period batch, platform hints
+
+- [x] `warnPossibleDoubleCount` when platform import + same-platform BUSINESS trips (formula unchanged)
+- [x] Dashboard red warning + links to Trips / Platform km
+- [x] Web Edit for Trips, Expenses, Odometer (PATCH / upsert)
+- [x] Shared `PLATFORM_HAS_ANNUAL_KM` + `PLATFORM_KM_HINT` on Import / Trips
+- [x] Trips **Period batch** (any date range → one BUSINESS trip + note range)
+- [x] Dashboard gap card: “Manual business beyond platform statements”
+- [x] Unit tests for double-count true/false paths
+
+**Verified:** Uber import + Uber trip → red warning; trip platform → NONE clears warning; Instacart hints; period batch creates one trip with range note.
+
+---
+
 ## Upcoming stages
 
-### ⬜ Stage 16 — Distribution (pre-scale)
+### ⬜ Stage 17 — Distribution (pre-scale)
 
 - [ ] Landing / waitlist or 3 SEO pages (Uber Eats T2125 Canada, etc.)
 - [ ] 5 beta users from driver communities
@@ -269,6 +283,7 @@ curl -s -X POST http://localhost:4000/odometer-readings \
 | 2026-05-21 | 14 | Neon + Oracle API + Cloudflare tunnel + Vercel web; prod smoke |
 | 2026-07-27 | 14+ | Dashboard: expense×% label, `platformKmGap` card; prod redeploy verified |
 | 2026-07-28 | 15 | Odometer readings; personal km = odometer total − business; warn at 100% business |
+| 2026-07-28 | 16 | Double-count warning; Edit CRUD; platform hints; period batch; gap-label copy |
 
 ---
 
