@@ -2,7 +2,12 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { GigPlatform, PLATFORM_LABELS } from "@gigtax/shared";
+import {
+  GigPlatform,
+  PLATFORM_HAS_ANNUAL_KM,
+  PLATFORM_KM_HINT,
+  PLATFORM_LABELS,
+} from "@gigtax/shared";
 import { AppNav } from "@/components/app-nav";
 import {
   getPlatformImports,
@@ -75,9 +80,20 @@ export default function ImportPage() {
         <AppNav />
 
         <p className="mt-2 text-sm text-zinc-600">
-          Enter annual business km from your Uber / DoorDash year-end statement.
-          We add your manual trips on top.
+          Statement-first platforms (Uber, DoorDash): enter year-end business
+          km. Log-first platforms (Instacart): usually skip this page and use
+          Trips.
         </p>
+        <p className="mt-2 text-sm text-zinc-700">{PLATFORM_KM_HINT[platform]}</p>
+        {!PLATFORM_HAS_ANNUAL_KM[platform] && (
+          <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            This platform usually does not publish annual km. Prefer{" "}
+            <a href="/trips" className="cursor-pointer underline">
+              Trips
+            </a>{" "}
+            instead of inventing a Platform number.
+          </p>
+        )}
 
         {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 

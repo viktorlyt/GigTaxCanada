@@ -2,7 +2,13 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { GigPlatform, PLATFORM_LABELS, TripPurpose } from "@gigtax/shared";
+import {
+  GigPlatform,
+  PLATFORM_HAS_ANNUAL_KM,
+  PLATFORM_KM_HINT,
+  PLATFORM_LABELS,
+  TripPurpose,
+} from "@gigtax/shared";
 import { AppNav } from "@/components/app-nav";
 import {
   createTrip,
@@ -117,7 +123,21 @@ export default function TripsPage() {
         </h1>
         <AppNav />
 
-        {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+        <p className="mt-2 text-sm text-zinc-600">
+          Log business km that are <strong>not</strong> already in a platform
+          year-end total (gap), or <strong>all</strong> km for platforms without
+          a statement (e.g. Instacart). Personal km: prefer Odometer.
+        </p>
+        <p className="mt-2 text-sm text-zinc-700">{PLATFORM_KM_HINT[platform]}</p>
+        {PLATFORM_HAS_ANNUAL_KM[platform] && (
+          <p className="mt-2 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">
+            You likely already imported this platform&apos;s annual km. Only add
+            extra gap trips here — re-logging every delivery double-counts. Tag
+            true gap as &quot;Off-platform / errands&quot; if needed.
+          </p>
+        )}
+
+        {error && <p className="mb-4 mt-4 text-sm text-red-600">{error}</p>}
 
         <form
           onSubmit={onSubmit}
