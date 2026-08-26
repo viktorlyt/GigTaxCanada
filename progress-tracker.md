@@ -229,9 +229,11 @@ pm2 restart gigtax-api
 
 ### ⬜ Stage 17b — Distribution (pre-scale)
 
-- [ ] Landing / waitlist or 3 SEO pages (Uber Eats T2125 Canada, etc.)
+- [x] Public landing page (positioning, features, CTA — replaces `/` → `/login` redirect)
+- [x] SEO guide #1: `/guides/uber-eats-t2125-canada`
+- [x] One-paragraph positioning vs RideWiz — `life-os/projects/gigtax-canada/positioning.md`
+- [ ] Landing / waitlist or 2 more SEO pages (DoorDash taxes Canada, business-use %)
 - [ ] 5 beta users from driver communities
-- [ ] One-paragraph positioning vs RideWiz finalized
 
 ---
 
@@ -306,6 +308,7 @@ curl -s -X POST http://localhost:4000/odometer-readings \
 | 2026-07-28 | 15 | Odometer readings; personal km = odometer total − business; warn at 100% business |
 | 2026-07-28 | 16 | Double-count warning; Edit CRUD; platform hints; period batch; gap-label copy |
 | 2026-07-28 | 17a | Custom domain gigtaxcanada.com + stable api.gigtaxcanada.com |
+| 2026-08-26 | 17b | Public landing page + Uber Eats T2125 SEO guide; positioning doc |
 
 ---
 
