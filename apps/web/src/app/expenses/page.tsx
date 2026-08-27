@@ -4,6 +4,8 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExpenseCategory } from "@gigtax/shared";
 import { AppNav } from "@/components/app-nav";
+import { TaxYearHeader } from "@/components/tax-year-header";
+import { defaultDateForTaxYear, useTaxYear } from "@/lib/tax-year";
 import {
   createExpense,
   deleteExpense,
@@ -13,8 +15,6 @@ import {
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
-const TAX_YEAR = new Date().getFullYear();
-const today = () => new Date().toISOString().slice(0, 10);
 
 const EXPENSE_LABELS: Record<ExpenseCategory, string> = {
   [ExpenseCategory.FUEL]: "Fuel",
@@ -36,34 +36,43 @@ function formatMoney(n: number) {
 
 export default function ExpensesPage() {
   const router = useRouter();
+  const { taxYear, setTaxYear } = useTaxYear();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [date, setDate] = useState(today);
+  const [date, setDate] = useState(() => defaultDateForTaxYear(readStoredTaxYear()));
   const [amount, setAmount] = useState("50");
   const [category, setCategory] = useState<ExpenseCategory>(
     ExpenseCategory.FUEL,
   );
   const [note, setNote] = useState("");
 
+  useEffect(() => {
+    if (editingId) return;
+    setDate(defaultDateForTaxYear(taxYear));
+  }, [taxYear, editingId]);
+
   const load = useCallback(() => {
-    return getExpenses(TAX_YEAR)
+    return getExpenses(taxYear)
       .then((rows) =>
         setExpenses(rows.map((e) => ({ ...e, amount: Number(e.amount) }))),
       )
       .catch((err) => {
         setError(err instanceof Error ? err.message : "Failed to load");
       });
-  }, []);
+  }, [taxYear]);
 
   useEffect(() => {
     if (!getToken()) {
       router.replace("/login");
       return;
     }
+    setLoading(true);
+    setExpenses([]);
+    setError(null);
     let cancelled = false;
     void load().finally(() => {
       if (!cancelled) setLoading(false);
@@ -71,11 +80,11 @@ export default function ExpensesPage() {
     return () => {
       cancelled = true;
     };
-  }, [router, load]);
+  }, [router, load, taxYear]);
 
   function resetForm() {
     setEditingId(null);
-    setDate(today());
+    setDate(defaultDateForTaxYear(taxYear));
     setAmount("50");
     setCategory(ExpenseCategory.FUEL);
     setNote("");
@@ -130,9 +139,8 @@ export default function ExpensesPage() {
   return (
     <div className="app-page flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
       <div className="mx-auto w-full max-w-3xl">
-        <h1 className="text-2xl font-semibold text-zinc-900">
-          Expenses {TAX_YEAR}
-        </h1>
+        <TaxYearHeader taxYear={taxYear} onTaxYearChange={setTaxYear} />
+        <h1 className="mt-2 text-xl font-semibold text-zinc-900">Expenses</h1>
         <AppNav />
 
         {error && <p className="mb-4 text-sm text-red-600">{error}</p>}

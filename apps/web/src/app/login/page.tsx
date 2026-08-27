@@ -102,6 +102,18 @@ export default function LoginPage() {
             Create free account
           </button>
         </form>
+
+        <p className="mt-6 text-center text-xs text-zinc-500">
+          By signing in you agree to our{" "}
+          <Link href="/terms" className="underline">
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="underline">
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </div>
     </div>
   );

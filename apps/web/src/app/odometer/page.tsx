@@ -3,6 +3,8 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppNav } from "@/components/app-nav";
+import { TaxYearHeader } from "@/components/tax-year-header";
+import { useTaxYear } from "@/lib/tax-year";
 import {
   deleteOdometerReading,
   getOdometerReadings,
@@ -11,33 +13,39 @@ import {
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
-const TAX_YEAR = new Date().getFullYear();
-
 export default function OdometerPage() {
   const router = useRouter();
+  const { taxYear, setTaxYear } = useTaxYear();
   const [readings, setReadings] = useState<OdometerReading[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [date, setDate] = useState(`${TAX_YEAR}-01-01`);
+  const [date, setDate] = useState("");
   const [reading, setReading] = useState("");
   const [note, setNote] = useState("");
 
+  useEffect(() => {
+    setDate(`${taxYear}-01-01`);
+  }, [taxYear]);
+
   const load = useCallback(() => {
-    return getOdometerReadings(TAX_YEAR)
+    return getOdometerReadings(taxYear)
       .then(setReadings)
       .catch((err) => {
         setError(err instanceof Error ? err.message : "Failed to load");
       });
-  }, []);
+  }, [taxYear]);
 
   useEffect(() => {
     if (!getToken()) {
       router.replace("/login");
       return;
     }
+    setLoading(true);
+    setReadings([]);
+    setError(null);
     let cancelled = false;
     void load().finally(() => {
       if (!cancelled) setLoading(false);
@@ -45,11 +53,11 @@ export default function OdometerPage() {
     return () => {
       cancelled = true;
     };
-  }, [router, load]);
+  }, [router, load, taxYear]);
 
   function resetForm() {
     setEditingId(null);
-    setDate(`${TAX_YEAR}-01-01`);
+    setDate(`${taxYear}-01-01`);
     setReading("");
     setNote("");
   }
@@ -97,9 +105,8 @@ export default function OdometerPage() {
   return (
     <div className="app-page flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
       <div className="mx-auto w-full max-w-3xl">
-        <h1 className="text-2xl font-semibold text-zinc-900">
-          Odometer {TAX_YEAR}
-        </h1>
+        <TaxYearHeader taxYear={taxYear} onTaxYearChange={setTaxYear} />
+        <h1 className="mt-2 text-xl font-semibold text-zinc-900">Odometer</h1>
         <AppNav />
 
         <p className="mt-2 text-sm text-zinc-600">

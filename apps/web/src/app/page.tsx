@@ -124,6 +124,15 @@ export default function Home() {
             accounting advice. Keep your records for six years (CRA). Verify numbers
             with official CRA guides or a qualified CPA before filing.
           </p>
+          <p className="mt-3 text-xs text-zinc-500">
+            <Link href="/privacy" className="underline">
+              Privacy
+            </Link>
+            {" · "}
+            <Link href="/terms" className="underline">
+              Terms
+            </Link>
+          </p>
         </section>
       </main>
     </div>

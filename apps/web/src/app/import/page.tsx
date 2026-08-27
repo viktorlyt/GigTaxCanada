@@ -9,6 +9,8 @@ import {
   PLATFORM_LABELS,
 } from "@gigtax/shared";
 import { AppNav } from "@/components/app-nav";
+import { TaxYearHeader } from "@/components/tax-year-header";
+import { useTaxYear } from "@/lib/tax-year";
 import {
   getPlatformImports,
   upsertPlatformImport,
@@ -16,10 +18,9 @@ import {
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
-const TAX_YEAR = new Date().getFullYear();
-
 export default function ImportPage() {
   const router = useRouter();
+  const { taxYear, setTaxYear } = useTaxYear();
   const [imports, setImports] = useState<PlatformImport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,18 +31,21 @@ export default function ImportPage() {
   const [note, setNote] = useState("");
 
   const load = useCallback(() => {
-    return getPlatformImports(TAX_YEAR)
+    return getPlatformImports(taxYear)
       .then(setImports)
       .catch((err) => {
         setError(err instanceof Error ? err.message : "Failed to load");
       });
-  }, []);
+  }, [taxYear]);
 
   useEffect(() => {
     if (!getToken()) {
       router.replace("/login");
       return;
     }
+    setLoading(true);
+    setImports([]);
+    setError(null);
     let cancelled = false;
     void load().finally(() => {
       if (!cancelled) setLoading(false);
@@ -49,7 +53,7 @@ export default function ImportPage() {
     return () => {
       cancelled = true;
     };
-  }, [router, load]);
+  }, [router, load, taxYear]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -57,7 +61,7 @@ export default function ImportPage() {
     setError(null);
     try {
       await upsertPlatformImport({
-        taxYear: TAX_YEAR,
+        taxYear,
         platform,
         reportedKm: parseFloat(reportedKm),
         note: note || undefined,
@@ -74,9 +78,8 @@ export default function ImportPage() {
   return (
     <div className="app-page flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
       <div className="mx-auto w-full max-w-3xl">
-        <h1 className="text-2xl font-semibold text-zinc-900">
-          Platform km {TAX_YEAR}
-        </h1>
+        <TaxYearHeader taxYear={taxYear} onTaxYearChange={setTaxYear} />
+        <h1 className="mt-2 text-xl font-semibold text-zinc-900">Platform km</h1>
         <AppNav />
 
         <p className="mt-2 text-sm text-zinc-600">

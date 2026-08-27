@@ -6,21 +6,15 @@ import Link from "next/link";
 import type { TaxYearSummary } from "@gigtax/shared";
 import { AppNav } from "@/components/app-nav";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
+import { InstallPrompt } from "@/components/install-prompt";
+import { TaxYearHeader } from "@/components/tax-year-header";
+import { useTaxYear } from "@/lib/tax-year";
 import { downloadSummaryCsv, getSummary } from "@/lib/api";
 import { clearToken, getToken } from "@/lib/auth";
 
-const TAX_YEAR = new Date().getFullYear();
-
-function formatMoney(n: number) {
-  return new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
 export default function DashboardPage() {
   const router = useRouter();
+  const { taxYear, setTaxYear } = useTaxYear();
   const [summary, setSummary] = useState<TaxYearSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +24,7 @@ export default function DashboardPage() {
       return;
     }
 
-    getSummary(TAX_YEAR)
+    getSummary(taxYear)
       .then(setSummary)
       .catch((err) => {
         setError(err instanceof Error ? err.message : "Failed to load");
@@ -42,11 +36,19 @@ export default function DashboardPage() {
           router.replace("/login");
         }
       });
-  }, [router]);
+  }, [router, taxYear]);
 
   function logout() {
     clearToken();
     router.push("/login");
+  }
+
+  function formatMoney(n: number) {
+    return new Intl.NumberFormat("en-CA", {
+      style: "currency",
+      currency: "CAD",
+      maximumFractionDigits: 0,
+    }).format(n);
   }
 
   if (error) {
@@ -68,16 +70,15 @@ export default function DashboardPage() {
   return (
     <div className="app-page flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
       <div className="mx-auto max-w-3xl">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-zinc-900">
-            Tax year {summary.taxYear}
-          </h1>
-          <button onClick={logout} className="text-sm text-zinc-600 underline">
-            Log out
-          </button>
-        </div>
+        <TaxYearHeader
+          taxYear={taxYear}
+          onTaxYearChange={setTaxYear}
+          onLogout={logout}
+        />
 
         <AppNav />
+
+        <InstallPrompt />
 
         <OnboardingChecklist summary={summary} />
 
@@ -230,7 +231,7 @@ export default function DashboardPage() {
           </Link>
           <button
             type="button"
-            onClick={() => void downloadSummaryCsv(TAX_YEAR)}
+            onClick={() => void downloadSummaryCsv(taxYear)}
             className="rounded-lg border bg-white px-4 py-2 text-sm text-zinc-900"
           >
             Export CSV

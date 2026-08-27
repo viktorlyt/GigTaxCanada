@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   GigPlatform,
@@ -10,6 +10,7 @@ import {
   TripPurpose,
 } from "@gigtax/shared";
 import { AppNav } from "@/components/app-nav";
+import { TaxYearHeader } from "@/components/tax-year-header";
 import {
   createTrip,
   deleteTrip,
@@ -18,15 +19,18 @@ import {
   type Trip,
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
-
-const TAX_YEAR = new Date().getFullYear();
-const today = () => new Date().toISOString().slice(0, 10);
+import {
+  defaultDateForTaxYear,
+  readStoredTaxYear,
+  useTaxYear,
+} from "@/lib/tax-year";
 
 type EntryMode = "single" | "range";
 
 export default function TripsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { taxYear, setTaxYear } = useTaxYear();
   const formRef = useRef<HTMLFormElement>(null);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,35 +39,47 @@ export default function TripsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [entryMode, setEntryMode] = useState<EntryMode>("single");
 
-  const [date, setDate] = useState(today);
-  const [rangeStart, setRangeStart] = useState(today);
-  const [rangeEnd, setRangeEnd] = useState(today);
+  const [date, setDate] = useState(() => defaultDateForTaxYear(readStoredTaxYear()));
+  const [rangeStart, setRangeStart] = useState(() => `${readStoredTaxYear()}-01-01`);
+  const [rangeEnd, setRangeEnd] = useState(() => defaultDateForTaxYear(readStoredTaxYear()));
   const [kilometers, setKilometers] = useState("10");
   const [purpose, setPurpose] = useState<TripPurpose>(TripPurpose.BUSINESS);
   const [platform, setPlatform] = useState<GigPlatform>(GigPlatform.UBER_EATS);
   const [note, setNote] = useState("");
-
-  const load = useCallback(() => {
-    return getTrips(TAX_YEAR)
-      .then(setTrips)
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : "Failed to load");
-      });
-  }, []);
 
   useEffect(() => {
     if (!getToken()) {
       router.replace("/login");
       return;
     }
+    setLoading(true);
+    setTrips([]);
+    setError(null);
     let cancelled = false;
-    void load().finally(() => {
-      if (!cancelled) setLoading(false);
-    });
+    void getTrips(taxYear)
+      .then((rows) => {
+        if (!cancelled) setTrips(rows);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Failed to load");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
-  }, [router, load]);
+  }, [router, taxYear]);
+
+  useEffect(() => {
+    if (editingId) return;
+    const end = defaultDateForTaxYear(taxYear);
+    setDate(end);
+    setRangeStart(`${taxYear}-01-01`);
+    setRangeEnd(end);
+  }, [taxYear, editingId]);
 
   useEffect(() => {
     if (searchParams.get("add") === "batch") {
@@ -88,11 +104,12 @@ export default function TripsPage() {
 
   function resetForm() {
     const batchQuickAdd = searchParams.get("add") === "batch";
+    const end = defaultDateForTaxYear(taxYear);
     setEditingId(null);
     setEntryMode(batchQuickAdd ? "range" : "single");
-    setDate(today());
-    setRangeStart(today());
-    setRangeEnd(today());
+    setDate(end);
+    setRangeStart(`${taxYear}-01-01`);
+    setRangeEnd(end);
     setKilometers("10");
     setPurpose(TripPurpose.BUSINESS);
     setPlatform(GigPlatform.UBER_EATS);
@@ -156,7 +173,8 @@ export default function TripsPage() {
         });
       }
       resetForm();
-      load();
+      const rows = await getTrips(taxYear);
+      setTrips(rows);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
     } finally {
@@ -169,7 +187,8 @@ export default function TripsPage() {
     try {
       await deleteTrip(id);
       if (editingId === id) resetForm();
-      load();
+      const rows = await getTrips(taxYear);
+      setTrips(rows);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete");
     }
@@ -180,9 +199,8 @@ export default function TripsPage() {
   return (
     <div className="app-page flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
       <div className="mx-auto w-full max-w-3xl">
-        <h1 className="text-2xl font-semibold text-zinc-900">
-          Trips {TAX_YEAR}
-        </h1>
+        <TaxYearHeader taxYear={taxYear} onTaxYearChange={setTaxYear} />
+        <h1 className="mt-2 text-xl font-semibold text-zinc-900">Trips</h1>
         <AppNav />
 
         <p className="mt-2 text-sm text-zinc-600">
