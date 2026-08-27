@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { TaxYearSummary } from "@gigtax/shared";
 import { AppNav } from "@/components/app-nav";
+import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { downloadSummaryCsv, getSummary } from "@/lib/api";
 import { clearToken, getToken } from "@/lib/auth";
 
@@ -65,7 +66,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
+    <div className="app-page flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
       <div className="mx-auto max-w-3xl">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-zinc-900">
@@ -78,14 +79,36 @@ export default function DashboardPage() {
 
         <AppNav />
 
+        <OnboardingChecklist summary={summary} />
+
+        {/* Hero: business-use % + km (Offer v1) */}
         <div className="mt-6 rounded-2xl border bg-white p-6 shadow-sm">
+          <p className="text-sm text-zinc-500">Business use (vehicle)</p>
+          <p className="mt-1 text-4xl font-bold tabular-nums text-zinc-900">
+            {summary.businessUsePercent}%
+          </p>
+          <p className="mt-2 text-lg font-semibold tabular-nums text-zinc-800">
+            {summary.businessKm.toLocaleString("en-CA")} business km
+          </p>
+          <p className="mt-1 text-sm text-zinc-500">
+            {summary.totalKm.toLocaleString("en-CA")} total km ·{" "}
+            {summary.personalKm.toLocaleString("en-CA")} personal km
+          </p>
+          <p className="mt-3 text-sm text-zinc-500">
+            Defensible numbers from what you logged — verify with CRA guides or
+            your CPA.
+          </p>
+        </div>
+
+        {/* Secondary: deductible estimate */}
+        <div className="mt-4 rounded-2xl border border-zinc-200 bg-zinc-50/80 p-5">
           <p className="text-sm text-zinc-500">
             Deductible portion of logged expenses (× business use %)
           </p>
-          <p className="mt-1 text-4xl font-bold text-emerald-700">
+          <p className="mt-1 text-2xl font-bold tabular-nums text-emerald-700">
             {formatMoney(summary.deductibleExpenses)}
           </p>
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="mt-1 text-xs text-zinc-500">
             Based on expenses you entered, not a per-km CRA rate.
           </p>
           {summary.potentialMissedDeduction > 0 && (
@@ -98,13 +121,9 @@ export default function DashboardPage() {
         </div>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <Stat label="Business use" value={`${summary.businessUsePercent}%`} />
-          <Stat label="Business km" value={`${summary.businessKm} km`} />
-          <Stat label="Personal km" value={`${summary.personalKm} km`} />
-          <Stat label="Total km" value={`${summary.totalKm} km`} />
           <Stat
             label="Platform reported km"
-            value={`${summary.platformReportedKm} km`}
+            value={`${summary.platformReportedKm.toLocaleString("en-CA")} km`}
           />
           <Stat
             label="Total expenses"

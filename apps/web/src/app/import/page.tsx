@@ -72,7 +72,7 @@ export default function ImportPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
+    <div className="app-page flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
       <div className="mx-auto w-full max-w-3xl">
         <h1 className="text-2xl font-semibold text-zinc-900">
           Platform km {TAX_YEAR}

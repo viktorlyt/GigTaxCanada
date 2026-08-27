@@ -18,20 +18,20 @@ export const metadata: Metadata = {
 
 const features = [
   {
+    title: "Avoid double-counting",
+    body: "If you import statement km and also log same-platform business trips, we warn you before your numbers look inflated — a common audit risk.",
+  },
+  {
     title: "Import platform km",
     body: "Paste Uber or DoorDash year-end statement km. Instacart and other apps usually need manual trips — we show platform-specific hints.",
   },
   {
     title: "Log the gap, not every delivery",
-    body: "Add off-platform errands, gas runs, and between-app driving. Period batch entry covers a whole week in one trip.",
+    body: "Add off-platform errands, gas runs, and between-app driving. Weekly period batch covers a whole week in one trip.",
   },
   {
-    title: "Avoid double-counting",
-    body: "If you import statement km and also log same-platform business trips, we warn you before your deductible looks inflated.",
-  },
-  {
-    title: "Business-use % + export",
-    body: "Odometer readings, expense categories, and a CSV summary aligned with T2125 Chart A concepts — verify with CRA guides or your CPA.",
+    title: "Worksheet + CSV export",
+    body: "Odometer readings, expense categories, business-use %, and a CSV summary for your records or CPA — verify with CRA guides, not tax filing.",
   },
 ];
 
@@ -57,16 +57,21 @@ export default function Home() {
             Uber gave you annual km — we help you add the rest.
           </h1>
           <p className="mt-4 text-lg text-zinc-600">
-            For Canadian drivers on Uber, DoorDash, Instacart, or multiple apps: import
-            platform statements, log business km they didn&apos;t count, track vehicle
-            expenses, and export a worksheet summary for tax season.
+            For Canadian drivers on multiple apps — or with off-platform business driving
+            platforms never counted: reconcile statement km, log the gap, and export
+            defensible numbers from what you entered. Worksheet for you or your CPA —
+            not tax filing.
+          </p>
+          <p className="mt-3 text-sm text-zinc-500">
+            Free beta · Manual gap logging (~10–15 min/week, batch OK) · Two odometer
+            readings per year · Not auto GPS
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/login"
               className="rounded-lg bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white"
             >
-              Start free
+              Start free beta
             </Link>
             <Link
               href="/guides/uber-eats-t2125-canada"
@@ -91,16 +96,25 @@ export default function Home() {
 
         <section className="mt-16 rounded-2xl border border-zinc-200 bg-white p-8">
           <h2 className="text-lg font-semibold text-zinc-900">
-            How we&apos;re different from auto-trackers
+            Different job than auto-trackers
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-zinc-600">
-            Apps like RideWiz lead with background GPS mileage. GigTax is built for{" "}
+            Apps like RideWiz are built for passive GPS mileage. GigTax is for{" "}
             <strong className="font-medium text-zinc-800">
               multi-platform reconciliation
             </strong>
-            : you control what counts as business km, import what Uber or DoorDash
-            already reported, and fill the gap with clarity — not another always-on
-            tracker.
+            : import what Uber or DoorDash reported, add gap km with control, and get
+            warned if you overlap the two. Want zero manual entry? Use an auto-tracker.
+            Want clarity across mixed apps? Use this.
+          </p>
+        </section>
+
+        <section className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-8">
+          <h2 className="text-lg font-semibold text-zinc-900">Free beta</h2>
+          <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+            Use the full workflow at no cost while we validate it. If something is
+            confusing or broken, we want to hear from you — that&apos;s the point of
+            beta.
           </p>
         </section>
 

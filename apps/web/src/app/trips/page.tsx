@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   GigPlatform,
   PLATFORM_HAS_ANNUAL_KM,
@@ -26,6 +26,8 @@ type EntryMode = "single" | "range";
 
 export default function TripsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const formRef = useRef<HTMLFormElement>(null);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,9 +65,31 @@ export default function TripsPage() {
     };
   }, [router, load]);
 
+  useEffect(() => {
+    if (searchParams.get("add") === "batch") {
+      setEditingId(null);
+      setEntryMode("range");
+      setPurpose(TripPurpose.BUSINESS);
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      setEntryMode("single");
+    }
+  }, [searchParams]);
+
+  function switchEntryMode(mode: EntryMode) {
+    setEntryMode(mode);
+    if (mode === "single" && searchParams.get("add") === "batch") {
+      router.replace("/trips");
+    }
+    if (mode === "range" && searchParams.get("add") !== "batch") {
+      router.replace("/trips?add=batch");
+    }
+  }
+
   function resetForm() {
+    const batchQuickAdd = searchParams.get("add") === "batch";
     setEditingId(null);
-    setEntryMode("single");
+    setEntryMode(batchQuickAdd ? "range" : "single");
     setDate(today());
     setRangeStart(today());
     setRangeEnd(today());
@@ -154,7 +178,7 @@ export default function TripsPage() {
   const showRange = !editingId && entryMode === "range";
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
+    <div className="app-page flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
       <div className="mx-auto w-full max-w-3xl">
         <h1 className="text-2xl font-semibold text-zinc-900">
           Trips {TAX_YEAR}
@@ -178,6 +202,7 @@ export default function TripsPage() {
         {error && <p className="mb-4 mt-4 text-sm text-red-600">{error}</p>}
 
         <form
+          ref={formRef}
           onSubmit={onSubmit}
           className="mt-4 space-y-4 rounded-2xl border bg-white p-6 shadow-sm"
         >
@@ -193,7 +218,7 @@ export default function TripsPage() {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => setEntryMode("single")}
+                onClick={() => switchEntryMode("single")}
                 className={`cursor-pointer rounded-lg px-3 py-1.5 text-sm ${
                   entryMode === "single"
                     ? "bg-zinc-900 text-white"
@@ -205,8 +230,8 @@ export default function TripsPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setEntryMode("range");
                   setPurpose(TripPurpose.BUSINESS);
+                  switchEntryMode("range");
                 }}
                 className={`cursor-pointer rounded-lg px-3 py-1.5 text-sm ${
                   entryMode === "range"

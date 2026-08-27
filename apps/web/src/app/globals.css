@@ -34,3 +34,14 @@ textarea {
 input::placeholder {
   color: #a1a1aa; /* zinc-400 – placeholders only */
 }
+
+/* Room for fixed bottom nav on mobile app pages */
+.app-page {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  .app-page {
+    padding-bottom: 1.5rem;
+  }
+}
