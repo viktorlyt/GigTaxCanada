@@ -47,18 +47,20 @@ Canada-first, T2125-oriented tooling for gig workers, built as **web/PWA first**
 - **Dashboard (tax year):** total km, business km, business %, expenses by category, deductible portion = expense × business %
 - **Export:** CSV + printable summary (not “file your taxes”)
 
-### Add (small effort, high trust)
+### Add (small effort, high trust) — status Aug 2026
 
-- **Tax year selector** (default current calendar year)
-- **Odometer readings** (done): arbitrary dated readings; with ≥2 in a tax year, personal km = (latest − earliest) − business km (CRA-friendly simplified personal tracking)
-- **“Import platform km”** — Uber/DoorDash year-end statement km + Trips for gap only; Instacart usually has no annual km (log on Trips / period batch). App warns if statement + same-platform trips would double-count.
-- **Disclaimer** on every export: information only, not tax advice; keep records 6 years (CRA)
+- **Tax year selector** — ✅ shipped (all app pages, localStorage)
+- **Odometer readings** — ✅ shipped (see below)
+- **“Import platform km”** — ✅ shipped with double-count warning
+- **Disclaimer** on every export — ✅ in UI copy + legal pages
+- **Privacy + Terms (PIPEDA)** — ✅ `/privacy`, `/terms`
+- **Mobile shell** — ✅ bottom nav, onboarding, PWA install prompt, More menu
 
 ### Defer (post-validation)
 
 - Stripe / paywall until 5–10 real users try free tier
 - PDF fancy reports, AI categorization, bank links, CCA calculator, accountant portal
-- Native app (only if retention proves manual logging works)
+- Native app (only if retention proves manual logging works — **PWA + install prompt shipped Aug 2026**)
 
 ### Avoid in marketing copy
 

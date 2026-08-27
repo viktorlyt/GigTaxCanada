@@ -2,7 +2,7 @@
 
 > **How to use:** Update this file after every **big stage** (a numbered build step or a major feature slice). Mark stages ✅ when verified (curl, browser, or deploy). Link PRs/commits optionally in **Notes**.
 
-**Last updated:** 2026-07-28  
+**Last updated:** 2026-08-26  
 **Product wedge:** Multi-platform km reconciliation + expense business-use % (vs RideWiz auto-GPS)  
 **Stack:** Turborepo · Next.js (`apps/web`) · NestJS (`apps/api`) · PostgreSQL · Prisma · `@gigtax/shared`  
 **Production:** https://gigtaxcanada.com · API https://api.gigtaxcanada.com
@@ -17,6 +17,8 @@
 | API (auth, trips, expenses, summary, platform imports, odometer) | ✅ Done |
 | Web (login + dashboard) | ✅ Done |
 | Web (trips / expenses / import / odometer forms) | ✅ Done |
+| Public landing + SEO guide | ✅ Done |
+| Mobile UX (bottom nav, onboarding, tax year, legal, PWA, More) | ✅ Done |
 | PWA + README | ✅ Done |
 | Deploy beta | ✅ Done |
 | Stable API hostname (named tunnel + own domain) | ✅ Done |
@@ -227,13 +229,42 @@ pm2 restart gigtax-api
 - [x] Stable API `api.gigtaxcanada.com` (Cloudflare named tunnel → Oracle Nest)
 - [x] Prod smoke on custom domain (odometer summary visible)
 
-### ⬜ Stage 17b — Distribution (pre-scale)
+### ✅ Stage 17b — Distribution + mobile UX (Aug 2026)
 
 - [x] Public landing page (positioning, features, CTA — replaces `/` → `/login` redirect)
 - [x] SEO guide #1: `/guides/uber-eats-t2125-canada`
 - [x] One-paragraph positioning vs RideWiz — `life-os/projects/gigtax-canada/positioning.md`
-- [ ] Landing / waitlist or 2 more SEO pages (DoorDash taxes Canada, business-use %)
+- [x] Offer v1 messaging on login + landing
+- [x] Mobile bottom nav: Summary · Trips · + · Costs · More
+- [x] Dashboard hero: business-use % + km first (Offer v1)
+- [x] Onboarding checklist (platform km → odometer → gap trip)
+- [x] Tax year selector (all app pages, localStorage)
+- [x] `/privacy` + `/terms` (PIPEDA)
+- [x] PWA install prompt on dashboard (mobile)
+- [x] More menu: Platform km, Odometer, Export CSV, Log out
+- [x] Quick add: `/trips?add=batch` → period batch form
+- [ ] Community outreach — on hold until early Oct
+- [ ] 2 more SEO pages (DoorDash; business-use %)
 - [ ] 5 beta users from driver communities
+
+**Deploy commits:** `9546f52` → `77c7a7a` (see changelog)
+
+---
+
+## Upcoming stages (post-vacation)
+
+### ⬜ Stage 18 — Beta validation + distribution
+
+- [ ] 1 driver conversation **or** 3 users with import + gap trip + export
+- [ ] One authentic community reply (see `life-os/.../community-reply-drafts.md`)
+- [ ] SEO guides #2–3
+- [ ] Touch-target polish, collapsible Trips copy (optional)
+
+### ⬜ Stage 19 — Monetization (after 5–10 users)
+
+- [ ] Stripe tax-season pass
+- [ ] PDF export
+- [ ] Google OAuth (optional)
 
 ---
 
@@ -241,13 +272,13 @@ pm2 restart gigtax-api
 
 | Item | Priority |
 |------|----------|
-| Tax year selector in UI | Medium |
-| Optional CRA per-km allowance estimate (comparison only, not tax advice) | Low / after MVP |
+| Optional CRA per-km allowance estimate (comparison only, not tax advice) | Low |
 | Google OAuth | Low |
 | Stripe / tax-season pass pricing | After 5–10 users |
 | Accountant client portal (`AccountantClient` model) | Later |
 | PDF reports, bank links, AI categorization | Defer |
 | Quebec / French | Later |
+| Service worker (offline shell) | Low |
 
 ---
 
@@ -309,9 +340,11 @@ curl -s -X POST http://localhost:4000/odometer-readings \
 | 2026-07-28 | 16 | Double-count warning; Edit CRUD; platform hints; period batch; gap-label copy |
 | 2026-07-28 | 17a | Custom domain gigtaxcanada.com + stable api.gigtaxcanada.com |
 | 2026-08-26 | 17b | Public landing page + Uber Eats T2125 SEO guide; positioning doc |
+| 2026-08-26 | 17b | Mobile UX deploy: nav, onboarding, tax year, legal, PWA, More menu (`77c7a7a`) |
 
 ---
 
 ## Related docs
 
 - [PLAN.md](./PLAN.md) — product strategy, MVP scope, GTM, architecture rationale
+- life-os: `projects/gigtax-canada/` — Offer v1, roadmap, community drafts

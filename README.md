@@ -5,6 +5,11 @@ Canada-first mileage and vehicle expense tracking for gig drivers (Uber Eats, Do
 - **Production:** https://gigtaxcanada.com · API https://api.gigtaxcanada.com
 - **Product plan:** [PLAN.md](./PLAN.md)
 - **Build progress:** [progress-tracker.md](./progress-tracker.md)
+- **Offer + GTM (life-os):** `~/development/life-os/projects/gigtax-canada/`
+
+## Current status (2026-08-26)
+
+MVP + mobile driver UX **live on prod**. Stage 17b shipped: public landing, SEO guide #1, Offer v1 copy, bottom nav, onboarding, tax year selector, privacy/terms, PWA install prompt, More menu. **Code frozen until early Oct** — next: beta outreach + optional community reply.
 
 ## Stack
 
@@ -79,6 +84,10 @@ npm run dev
 - API health: http://localhost:4000/health
 
 Register a user or use your test account, then open **Summary**, **Trips**, **Expenses**, **Platform km**, **Odometer**.
+
+**Mobile (≤768px):** bottom nav — Summary · Trips · **+** · Costs · **More** (Platform km, Odometer, Export CSV, Log out).
+
+**Public pages:** `/` landing · `/login` · `/privacy` · `/terms` · `/guides/uber-eats-t2125-canada`
 
 ## Project layout
 
