@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   GigPlatform,
@@ -27,7 +27,7 @@ import {
 
 type EntryMode = "single" | "range";
 
-export default function TripsPage() {
+function TripsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { taxYear, setTaxYear } = useTaxYear();
@@ -435,5 +435,21 @@ export default function TripsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TripsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="app-page flex min-h-screen flex-1 flex-col bg-zinc-50 p-6">
+          <div className="mx-auto w-full max-w-3xl">
+            <p className="text-sm text-zinc-500">Loading trips…</p>
+          </div>
+        </div>
+      }
+    >
+      <TripsPageContent />
+    </Suspense>
   );
 }

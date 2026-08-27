@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { ExpenseCategory } from "@gigtax/shared";
 import { AppNav } from "@/components/app-nav";
 import { TaxYearHeader } from "@/components/tax-year-header";
-import { defaultDateForTaxYear, useTaxYear } from "@/lib/tax-year";
+import {
+  defaultDateForTaxYear,
+  readStoredTaxYear,
+  useTaxYear,
+} from "@/lib/tax-year";
 import {
   createExpense,
   deleteExpense,
